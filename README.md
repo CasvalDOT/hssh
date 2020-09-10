@@ -17,7 +17,7 @@ The binary is included into:
 - `binaries/macos/hssh` if you have MacOS
 
 ### Brew
-Due to private nature of the repository, you must create first a pernonal access token
+Due to private nature of the repository, you must create first a personal access token
 in gitlab settings tab. Copy the generated token and then export your env in your local machine
 
 `export GITLAB_HOMEBREW_TOKEN=<Your Token>`
@@ -29,9 +29,7 @@ brew tap heply/tools git@gitlab.com:Casval/homebrew-heply.git
 brew install hssh
 ```
 
----
-
-### Notes
+#### Notes
 
 Hssh is written in go lang, so if you have a different system you can try to compile your own binary running
 the golang build command like:
