@@ -1,0 +1,4 @@
+GITLAB_BASE_URL=https://gitlab.com/api/v4
+GITLAB_PRIVATE_TOKEN=
+GITLAB_PROJECT_ID=17393194
+GITLAB_FILES=config.heply.d%2Fcustomers,config.heply.d%2Ftimenet,config.heply.d%2Fevosip,config.heply.d%2Fheply
