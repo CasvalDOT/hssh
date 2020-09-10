@@ -13,8 +13,8 @@ Two methods are available:
 Clone the repository and then copy the binary file into a valid executable path. (Check your PATH env)
 The binary is included into:
 
-- `binaries/linux/hssh` if you have linux
-- `binaries/macos/hssh` if you have MacOS
+- `bin/linux/hssh` if you have linux
+- `bin/macos/hssh` if you have MacOS
 
 ### Brew
 Due to private nature of the repository, you must create first a personal access token
