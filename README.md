@@ -5,8 +5,8 @@
 Hssh has the following dependencies:
 - [fzf](https://github.com/junegunn/fzf)
 
-## Install
 
+## Install
 Two methods are available:
 
 ### Manual
@@ -35,7 +35,15 @@ Hssh is written in go lang, so if you have a different system you can try to com
 the golang build command like:
 `go build <path to your file>`
 
+## Configuration
+You must set the following params in your configuration file.
+The config file can be in `/etc/hssh/config` and can be overwritten 
+from `~/.config/hssh/config`
 
+- `GITLAB_BASE_URL` the gitlab api
+- `GITLAB_PRIVATE_TOKEN` The private token use to auth in gitlab. Note this can be used for the `GITLAB_HOMEBREW_TOKEN`
+- `GITLAB_PROJECT_ID` The ID of the repository where to fetch configuration files
+- `GITLAB_FILES` The path of configuration files separated by comma
 
 ## Usage
 To see available options and usage run:
