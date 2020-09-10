@@ -3,5 +3,5 @@
 system=$(uname -s)
 
 if [[ "$system" = "Linux" ]]; then
-  sudo cp ./binaries/linux/hssh /core/bin/
+  sudo cp ./bin/linux/hssh /core/bin/
 fi
