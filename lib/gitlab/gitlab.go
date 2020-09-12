@@ -1,4 +1,4 @@
-// Package gitlab provides ...
+// Package gitlab provides a basic function for interact with Gitlab
 package gitlab
 
 import (
@@ -8,26 +8,35 @@ import (
 	"net/http"
 )
 
-// Gitlab structure include some configurations
-// about gitlab API
+// Gitlab structure
+// Include some configurations about Gitlab API
 type Gitlab struct {
 	PrivateToken string
 	BaseURL      string
 }
 
-// File  describe the structure of a gitalb file repository
+// File strucrture
+// Describe the structure of a Gitlab file repository
 type File struct {
 	Content string `json:"content"`
 	Name    string `json:"file_name"`
 }
 
-// FileDecoded is the gitlab file converted in bytes
+// FileDecoded structure
+// Descrive the Gitlab file converted in bytes
 type FileDecoded struct {
 	Content []byte
 	Name    string
 }
 
-// Get function perform a request using gitlab API
+/*
+---------------------------------------------------------------------------
+Public functions
+----------------------------------------------------------------------------
+*/
+
+// Get function
+// Perform a request using the provided Gitlab API
 func (gitlab *Gitlab) Get(endpoint string) ([]byte, error) {
 
 	req, err := http.NewRequest("GET", gitlab.BaseURL+endpoint, nil)
@@ -55,7 +64,8 @@ func (gitlab *Gitlab) Get(endpoint string) ([]byte, error) {
 	return body, nil
 }
 
-// GetFile function return the content about a file in the gitlab repository
+// GetFile function
+// Return the content about a file in the Gitlab repository
 func (gitlab *Gitlab) GetFile(projectID string, filePath string) (FileDecoded, error) {
 	res, err := gitlab.Get("/projects/" + projectID + "/repository/files/" + filePath + "?ref=master")
 

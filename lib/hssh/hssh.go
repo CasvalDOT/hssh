@@ -1,10 +1,11 @@
-// Package hssh provides some functions for a rapid search on ssh connections
+// Package hssh provide a simple way for serach and connect ssh servers
 package hssh
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
-	"hssh/lib/config"
+	"gopkg.in/yaml.v2"
 	"hssh/lib/gitlab"
 	"io/ioutil"
 	"log"
@@ -14,23 +15,82 @@ import (
 	"strings"
 )
 
-// HSSH rapresent the structure of the HSSH content
-type HSSH struct {
-	Configuration config.Config
+// ProviderConfig structure
+/*
+	Describe the param for connect and fetch configuration files
+	contains the list of the SSH servers
+*/
+type ProviderConfig struct {
+	Host         string   `yaml:"host"`
+	PrivateToken string   `yaml:"private_token"`
+	ProjectID    string   `yaml:"project_id"`
+	Files        []string `yaml:"files"`
 }
 
-func getSSHDirectory(folder string) string {
-	// Configuration ssh path
+// HSSHConfig structure
+// Describe the list of providers stored in the configurationo
+type HSSHConfig struct {
+	Gitlab ProviderConfig `yaml:"gitlab"`
+}
+
+// HSSH structure
+// Rapresent the hssh instance. It contain the configuration file attributes
+type HSSH struct {
+	Configuration HSSHConfig
+}
+
+/*
+---------------------------------------------------------------------------
+Private functions
+----------------------------------------------------------------------------
+*/
+
+/*
+	_readConfig function
+
+	Read che configuration file at path provided
+*/
+func _readConfig(path string) (HSSHConfig, error) {
+
+	var cfg HSSHConfig
+
+	f, err := os.Open(path)
+	if err != nil {
+		return cfg, err
+	}
+	defer f.Close()
+
+	decoder := yaml.NewDecoder(f)
+	err = decoder.Decode(&cfg)
+	if err != nil {
+		return cfg, err
+	}
+
+	return cfg, nil
+}
+
+/*
+	_getSSHDirectory function
+
+	Return the absolute path of the ssh configuration folder download
+*/
+func _getSSHDirectory(folder string) string {
 	homeDir, _ := os.UserHomeDir()
 	folderPath := homeDir + "/.ssh/" + folder
 
 	return folderPath
 }
 
-func createConfigurationFile(folder string, fileName string, content []byte) {
+/*
+	_createSSHListFile
+
+	Create the file contains the list of ssh connections configuration
+	inside the .ssh/<folder> directory
+*/
+func _createSSHListFile(folder string, fileName string, content []byte) {
 
 	// Get folder path
-	folderPath := getSSHDirectory(folder)
+	folderPath := _getSSHDirectory(folder)
 
 	// Create configuration directory
 	os.MkdirAll(folderPath, os.ModePerm)
@@ -53,9 +113,11 @@ func createConfigurationFile(folder string, fileName string, content []byte) {
 }
 
 /*
-Create a temp file to store
-the formatted ssh files configuration
-after parsing it
+	_createTempFile function
+
+	Create a temp file to store
+	the formatted ssh files list configuration
+	after parsing it
 */
 func createTempFile(content string) *os.File {
 
@@ -64,7 +126,6 @@ func createTempFile(content string) *os.File {
 		log.Fatal("Cannot create temporary file", err)
 	}
 
-	// Example writing to the file
 	text := []byte(content)
 	if _, err = tmpFile.Write(text); err != nil {
 		log.Fatal("Failed to write to temporary file", err)
@@ -74,15 +135,20 @@ func createTempFile(content string) *os.File {
 }
 
 /*
-	Search in a list of connections provided
+	_search function
+
+	Search for connections in a wall of text using fzf utility
+	with pattern provided using the standard input
 */
-func search(connections string, fuzzysearch bool) string {
+func _search(connections string, fuzzysearch bool) string {
 	// Store connections parsed in a temp file
 	tmpFile := createTempFile(connections)
 	defer os.Remove(tmpFile.Name())
 
-	// Create a command to execute
-	// for retrieve connections
+	/*
+		Create a command to execute
+		for retrieve connections
+	*/
 	command := "cat " + tmpFile.Name()
 	if fuzzysearch {
 		command = command + " | fzf"
@@ -103,8 +169,10 @@ func search(connections string, fuzzysearch bool) string {
 		log.Fatal(err)
 	}
 
-	// Close the temporaly file
-	// previously created
+	/*
+		Close the temporaly file
+		previously created
+	*/
 	if err := tmpFile.Close(); err != nil {
 		log.Fatal(err)
 	}
@@ -114,18 +182,22 @@ func search(connections string, fuzzysearch bool) string {
 }
 
 /*
-Parse the SSH connections in a more human readable
-format, putting it in one line for perform rapid search
-*/
-func (hssh *HSSH) parseConnections(format string) string {
+	_parseConnections function
 
-	files := hssh.Configuration.GitlabFiles
+	Normalize the ssh connections file in a provided format
+	useful for a simply and rapic search and overview
+*/
+func (hssh *HSSH) _parseConnections(format string) string {
+
+	files := hssh.Configuration.Gitlab.Files
 
 	var connections string = ""
 
-	// Read all cofig files and chain it
-	// NOTE. If an error occured during read
-	// the file will be skipped
+	/*
+		Read all config files and chain it
+		 NOTE. If an error occured during read
+		 the file will be skipped
+	*/
 	for i := 0; i < len(files); i++ {
 		re := regexp.MustCompile(`^.*?%2F`)
 		file := re.ReplaceAllString(files[i], ``)
@@ -134,7 +206,7 @@ func (hssh *HSSH) parseConnections(format string) string {
 		re = regexp.MustCompile(`(\/|%2F).*`)
 		folder := re.ReplaceAllString(files[i], ``)
 
-		folderPath := getSSHDirectory(folder)
+		folderPath := _getSSHDirectory(folder)
 
 		content, err := ioutil.ReadFile(folderPath + "/" + file)
 		if err != nil {
@@ -150,8 +222,10 @@ func (hssh *HSSH) parseConnections(format string) string {
 	// Remove \n
 	connections = strings.ReplaceAll(connections, "\n", "")
 
-	// Replace Host with \nHost.
-	// this allowed to have a configuration in one line
+	/*
+		Replace Host with \nHost.
+		this allowed to have a configuration in one line
+	*/
 	connections = strings.ReplaceAll(connections, "Host ", "\nHost ")
 
 	// Remove attributes names
@@ -174,25 +248,29 @@ func (hssh *HSSH) parseConnections(format string) string {
 }
 
 /*
-Sync new SSH configurations files
-from Gitlab repository.
-Then save it the the .ssh user home folder
+---------------------------------------------------------------------------
+Public functions
+----------------------------------------------------------------------------
+*/
+
+// Sync function
+/*
+	Fetch connections files from provided services
+	used and save it in the ~/.ssh folder
 */
 func (hssh *HSSH) Sync() {
 
 	// Take project ID
-	var projectID string = hssh.Configuration.GitlabProjectID
+	var projectID string = hssh.Configuration.Gitlab.ProjectID
 
 	// Define a gitlab instance using authentication envs
 	var gitlab = gitlab.Gitlab{
-		BaseURL:      hssh.Configuration.GitlabBaseURL,
-		PrivateToken: hssh.Configuration.GitlabPrivateToken,
+		BaseURL:      hssh.Configuration.Gitlab.Host,
+		PrivateToken: hssh.Configuration.Gitlab.PrivateToken,
 	}
 
 	// Define a list of files to take from gitlab
-	// NOTE
-	// In the configurations files are comma separated
-	var files = hssh.Configuration.GitlabFiles
+	var files = hssh.Configuration.Gitlab.Files
 
 	// TODO
 	// Use go routines
@@ -208,39 +286,37 @@ func (hssh *HSSH) Sync() {
 			continue
 		}
 
-		createConfigurationFile(folder, fileDecoded.Name, fileDecoded.Content)
+		_createSSHListFile(folder, fileDecoded.Name, fileDecoded.Content)
 	}
 }
 
+// List function
 /*
-List the SSH connections configured
-in the format provided. List can be searchable
-using fuzzysearch, if -f is provided
+	Aggregate the list of ssh connections stored in the
+	downloaded files and print a list. You can
+	even search inside the list if you provide the fuzzysearch flag
 */
 func (hssh *HSSH) List(fuzzysearch bool) string {
 	// Obtain connections
-	connections := hssh.parseConnections(`$1 -> $3@$2:$4`)
+	connections := hssh._parseConnections(`$1 -> $3@$2:$4`)
 
 	// Perform a search
-	output := search(connections, fuzzysearch)
+	output := _search(connections, fuzzysearch)
 
 	// Return output
 	return output
 }
 
-/*
-Exec an SSH connection after seraching inside the list
-*/
+// Exec function
+// Perfotm an SSH connection after selected from the flatten list
 func (hssh *HSSH) Exec() {
 	// Obtain connections
-	connections := hssh.parseConnections(`$1 -> ssh $3@$2 -p $4`)
+	connections := hssh._parseConnections(`$1 -> ssh $3@$2 -p $4`)
 
-	// Perform a search
-	// NOTE that fuzzysearch arguments is set to true
-	command := search(connections, true)
+	// Perform a search (fuzzyseacrh is set to true)
+	command := _search(connections, true)
 
-	// Remove unused string part
-	// to obtain a valid ssh command
+	// Remove unused string part to obtain a valid ssh command
 	re := regexp.MustCompile(`^.*?->\s`)
 	command = re.ReplaceAllString(command, "")
 
@@ -254,4 +330,45 @@ func (hssh *HSSH) Exec() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+// LoadConfig function
+/*
+	Read and load the configuration found in the filesystem.
+	The configurations are hierarchical. In order:
+	- /etc/hssh/config.yml
+	- ~/.config/hssh/config.yml
+*/
+func (hssh *HSSH) LoadConfig() (HSSHConfig, error) {
+
+	homeDir, _ := os.UserHomeDir()
+	var cfg HSSHConfig
+	var isConfigLoad bool = false
+
+	var allowedPathConfigurations [2]string
+
+	allowedPathConfigurations[0] = homeDir + "/.config/hssh/config.yml"
+	allowedPathConfigurations[1] = "/etc/hssh/config.yml"
+
+	for _, path := range allowedPathConfigurations {
+
+		conf, err := _readConfig(path)
+
+		if err != nil {
+			continue
+		}
+
+		cfg = conf
+
+		isConfigLoad = true
+	}
+
+	if isConfigLoad == false {
+		return cfg, errors.New("Error loading config")
+	}
+
+	hssh.Configuration = cfg
+
+	return cfg, nil
+
 }

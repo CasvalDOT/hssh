@@ -1,16 +1,21 @@
-// Package hssh provides a way for sync heply servers
+/*
+	Package main provide the main entry for
+	the utility
+*/
 package main
 
 import (
 	"flag"
 	"fmt"
-	"hssh/lib/config"
 	"hssh/lib/hssh"
-	"log"
 	"os"
 	"regexp"
 )
 
+/*
+	Small function to print text in stardard output.
+	output text can be colorized too
+*/
 func out(content string, withColors bool) {
 
 	if withColors {
@@ -21,6 +26,7 @@ func out(content string, withColors bool) {
 	fmt.Printf(content)
 }
 
+// help function return the usage of the application
 func help() {
 	fmt.Println("")
 	fmt.Println("HSSH - An heply utility to connect into the server's company")
@@ -33,8 +39,7 @@ func help() {
 	fmt.Println("")
 }
 
-// TODO
-// Try a better approach for flags
+// Main function
 func main() {
 	// Define flags
 	isFuzzy := flag.Bool("f", false, "Enable fuzzysearch using FZF. Default is set to false.")
@@ -48,15 +53,15 @@ func main() {
 	// Parse flags
 	flag.Parse()
 
-	// Read the configuration file
-	configuration, err := config.Get()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	// Init hssh instance
-	var hsshInstance = hssh.HSSH{
-		Configuration: configuration,
+	var hsshInstance = hssh.HSSH{}
+
+	// Load configuration file
+	_, err := hsshInstance.LoadConfig()
+
+	// Stop application if configuration cannot be load
+	if err != nil {
+		os.Exit(1)
 	}
 
 	// Command assignation
