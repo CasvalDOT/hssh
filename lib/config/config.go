@@ -17,7 +17,7 @@ type Config struct {
 	GitlabFiles        []string
 }
 
-// Parse Return a tuble contain key value found
+// Parse Return a tuple contain key value found
 // in the configuration file
 func Parse(content string) (string, string) {
 	parsed := strings.Split(content, "=")
