@@ -204,8 +204,8 @@ func (hssh *HSSH) _parseConnections(format string) string {
 
 	/*
 		Read all config files and chain it
-		 NOTE. If an error occured during read
-		 the file will be skipped
+		NOTE. If an error occured during read
+		the file will be skipped
 	*/
 	for i := 0; i < len(files); i++ {
 		re := regexp.MustCompile(`(%2F|\/)`)
