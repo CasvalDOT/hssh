@@ -13,6 +13,7 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
+	"sync"
 )
 
 // ProviderConfig structure
@@ -27,16 +28,16 @@ type ProviderConfig struct {
 	Files        []string `yaml:"files"`
 }
 
-// HSSHConfig structure
+// Config structure
 // Describe the list of providers stored in the configurationo
-type HSSHConfig struct {
+type Config struct {
 	Gitlab ProviderConfig `yaml:"gitlab"`
 }
 
 // HSSH structure
 // Rapresent the hssh instance. It contain the configuration file attributes
 type HSSH struct {
-	Configuration HSSHConfig
+	Configuration Config
 }
 
 /*
@@ -50,9 +51,9 @@ Private functions
 
 	Read che configuration file at path provided
 */
-func _readConfig(path string) (HSSHConfig, error) {
+func _readConfig(path string) (Config, error) {
 
-	var cfg HSSHConfig
+	var cfg Config
 
 	f, err := os.Open(path)
 	if err != nil {
@@ -272,22 +273,34 @@ func (hssh *HSSH) Sync() {
 	// Define a list of files to take from gitlab
 	var files = hssh.Configuration.Gitlab.Files
 
+	var wg sync.WaitGroup
+
 	// TODO
 	// Use go routines
 	for i := 0; i < len(files); i++ {
-		fileDecoded, err := gitlab.GetFile(projectID, files[i])
+		wg.Add(1)
 
-		// Get folder path
-		re := regexp.MustCompile(`(\/|%2F).*`)
-		folder := re.ReplaceAllString(files[i], ``)
+		go func(url string) {
 
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
+			defer wg.Done()
 
-		_createSSHListFile(folder, fileDecoded.Name, fileDecoded.Content)
+			fileDecoded, err := gitlab.GetFile(projectID, url)
+
+			// Get folder path
+			re := regexp.MustCompile(`(\/|%2F).*`)
+			folder := re.ReplaceAllString(url, ``)
+
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				_createSSHListFile(folder, fileDecoded.Name, fileDecoded.Content)
+			}
+
+		}(files[i])
+
 	}
+
+	wg.Wait()
 }
 
 // List function
@@ -339,10 +352,10 @@ func (hssh *HSSH) Exec() {
 	- /etc/hssh/config.yml
 	- ~/.config/hssh/config.yml
 */
-func (hssh *HSSH) LoadConfig() (HSSHConfig, error) {
+func (hssh *HSSH) LoadConfig() (Config, error) {
 
 	homeDir, _ := os.UserHomeDir()
-	var cfg HSSHConfig
+	var cfg Config
 	var isConfigLoad bool = false
 
 	var allowedPathConfigurations [2]string
