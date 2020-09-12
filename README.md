@@ -37,13 +37,14 @@ the golang build command like:
 
 ## Configuration
 You must set the following params in your configuration file.
-The config file can be in `/etc/hssh/config` and can be overwritten 
-from `~/.config/hssh/config`
+The config file can be in `/etc/hssh/config.yml` and can be overwritten 
+from `~/.config/hssh/config.yml`
 
-- `GITLAB_BASE_URL` the gitlab api
-- `GITLAB_PRIVATE_TOKEN` The private token use to auth in gitlab.
-- `GITLAB_PROJECT_ID` The ID of the repository where to fetch configuration files
-- `GITLAB_FILES` The path of configuration files separated by comma
+#### Gitlab
+- `host` the gitlab api url
+- `private_token` The private token use to auth in gitlab.
+- `project_id` The ID of the repository where to fetch configuration files
+- `files` The path of configuration files separated by comma
 
 ## Usage
 To see available options and usage run:
