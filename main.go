@@ -29,7 +29,7 @@ func out(content string, withColors bool) {
 // help function return the usage of the application
 func help() {
 	fmt.Println("")
-	fmt.Println("HSSH - An heply utility to connect into the server's company")
+	fmt.Println("HSSH")
 	fmt.Println("")
 	fmt.Println("OPTIONS")
 	fmt.Println("-l return a list of connections available")
