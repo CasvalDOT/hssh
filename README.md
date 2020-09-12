@@ -18,9 +18,9 @@ The binary is included into:
 
 ### Brew
 Due to private nature of the repository, you must create first a personal access token
-in gitlab settings tab. Copy the generated token and then export your env in your local machine
+in github settings tab. Copy the generated token and then export your env in your local machine
 
-`export GITLAB_HOMEBREW_TOKEN=<Your Token>`
+`export HOMEBREW_GITHUB_API_TOKEN=<Your Token>`
 
 After that execute the following commands
 
@@ -41,7 +41,7 @@ The config file can be in `/etc/hssh/config` and can be overwritten
 from `~/.config/hssh/config`
 
 - `GITLAB_BASE_URL` the gitlab api
-- `GITLAB_PRIVATE_TOKEN` The private token use to auth in gitlab. Note this can be used for the `GITLAB_HOMEBREW_TOKEN`
+- `GITLAB_PRIVATE_TOKEN` The private token use to auth in gitlab.
 - `GITLAB_PROJECT_ID` The ID of the repository where to fetch configuration files
 - `GITLAB_FILES` The path of configuration files separated by comma
 
