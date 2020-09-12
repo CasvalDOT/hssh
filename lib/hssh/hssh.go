@@ -12,7 +12,6 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
-	"strings"
 	"sync"
 )
 
@@ -38,6 +37,13 @@ type Config struct {
 // Rapresent the hssh instance. It contain the configuration file attributes
 type HSSH struct {
 	Configuration Config
+}
+
+// ReplaceObject structure
+// Rapresent a search and replace structure
+type ReplaceObject struct {
+	value   string
+	replace string
 }
 
 /*
@@ -216,33 +222,20 @@ func (hssh *HSSH) _parseConnections(format string) string {
 		connections = connections + string(content)
 	}
 
-	// Remove comments
-	var re = regexp.MustCompile(`(?mi)^(#.*)$`)
-	connections = re.ReplaceAllString(connections, ``)
+	regex := [7]ReplaceObject{
+		{`(?mi)^(#.*)$`, ""},
+		{`(?mi)\n`, ""},
+		{`(?mi)Host `, "\nHost "},
+		{`(Hostname|Host|User|Port)`, ""},
+		{` +`, " "},
+		{`(?m)^ `, ""},
+		{`(?m)^(.*) (.*) (.*) (.*)$`, format},
+	}
 
-	// Remove \n
-	connections = strings.ReplaceAll(connections, "\n", "")
-
-	/*
-		Replace Host with \nHost.
-		this allowed to have a configuration in one line
-	*/
-	connections = strings.ReplaceAll(connections, "Host ", "\nHost ")
-
-	// Remove attributes names
-	re = regexp.MustCompile(`(Hostname|Host|User|Port)`)
-	connections = re.ReplaceAllString(connections, ``)
-
-	// Remove empty spaces
-	re = regexp.MustCompile(` +`)
-	connections = re.ReplaceAllString(connections, ` `)
-
-	re = regexp.MustCompile(`(?m)^ `)
-	connections = re.ReplaceAllString(connections, ``)
-
-	// Apply format provided
-	re = regexp.MustCompile(`(?m)^(.*) (.*) (.*) (.*)$`)
-	connections = re.ReplaceAllString(connections, format)
+	for _, reg := range regex {
+		re := regexp.MustCompile(reg.value)
+		connections = re.ReplaceAllString(connections, reg.replace)
+	}
 
 	return connections
 
