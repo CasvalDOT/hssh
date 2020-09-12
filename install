@@ -2,27 +2,26 @@
 
 system=$(uname -s)
 
-if [[ "$system" = "Linux" ]]; then
-  sudo cp ./bin/linux/hssh /core/bin/
-
-  # Check hssh config exist in /etc folder
-  if [[ ! -d "/etc/hssh" ]]; then
-    sudo mkdir /etc/hssh
-  fi
-
-  # Check hssh config exist in $HOME
-  if [[ ! -d "$HOME/.config/hssh" ]]; then
-    mkdir "$HOME/.config/hssh"
-  fi
-
-  # Check if file config exist in /etc/hssh folder
-  if [[ ! -f "/etc/hssh/config" ]]; then
-    sudo cp ./config.template /etc/hssh/config
-  fi
-
-  # Check if file config exist in $HOME/.config/hssh folder
-  if [[ ! -f "$HOME/.config/hssh/config" ]]; then
-    sudo cp ./config.template "$HOME/.config/hssh/config"
-  fi
-
+# Check hssh config exist in /etc folder
+if [[ ! -d "/etc/hssh" ]]; then
+  sudo mkdir /etc/hssh
 fi
+
+# Check hssh config exist in $HOME
+if [[ ! -d "$HOME/.config/hssh" ]]; then
+  mkdir "$HOME/.config/hssh"
+fi
+
+# Check if file config exist in /etc/hssh folder
+if [[ ! -f "/etc/hssh/config" ]]; then
+  sudo cp ./config.template /etc/hssh/config
+fi
+
+# Check if file config exist in $HOME/.config/hssh folder
+if [[ ! -f "$HOME/.config/hssh/config" ]]; then
+  sudo cp ./config.template "$HOME/.config/hssh/config"
+fi
+
+go build hssh
+
+sudo cp ./hssh /core/bin/
