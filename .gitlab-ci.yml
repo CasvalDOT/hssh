@@ -1,5 +1,0 @@
-package:
-  script: tar -cvzf package.tar.gz  *
-  artifacts:
-    paths:
-      - package.tar.gz
