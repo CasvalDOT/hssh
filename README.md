@@ -1,20 +1,22 @@
 # HSSH 
-> An heply utility to easily search and connect into the heply servers
+> An heply utility for happy coders to easily search and connect into remote servers
 
 ## Dependencies
 Hssh has the following dependencies:
-- [fzf](https://github.com/junegunn/fzf)
+- [fzf](https://github.com/junegunn/fzf) - Used to search in interactive mode
 
 
 ## Install
 Two methods are available:
 
 ### Manual
-Clone the repository and then copy the binary file into a valid executable path. (Check your PATH env)
-The binary is included into:
+Clone or download the repository and then inside the folder run:
 
-- `bin/linux/hssh` if you have linux
-- `bin/macos/hssh` if you have MacOS
+- `go mod init hssh`
+- `go mod vendor`
+- `go build hssh`
+
+It generate a valid binary. Put the generated binary inside a valid binary path (Check your env `$PATH`)
 
 ### Brew
 Due to private nature of the repository, you must create first a personal access token
@@ -29,11 +31,6 @@ brew tap heply/tools git@gitlab.com:Casval/homebrew-heply.git
 brew install hssh
 ```
 
-#### Notes
-
-Hssh is written in go lang, so if you have a different system you can try to compile your own binary running
-the golang build command like:
-`go build <path to your file>`
 
 ## Configuration
 You must set the following params in your configuration file.
@@ -41,6 +38,8 @@ The config file can be in `/etc/hssh/config.yml` and can be overwritten
 from `~/.config/hssh/config.yml`
 
 #### Gitlab
+Under the Gitlab section you must declare the following params.
+
 - `host` the gitlab api url
 - `private_token` The private token use to auth in gitlab.
 - `project_id` The ID of the repository where to fetch configuration files
@@ -52,7 +51,7 @@ To see available options and usage run:
 
 ## Aliases
 
-Here you have three example of hssh aliases
+Here some examples of hssh aliases
 that you can use
 
 ```
