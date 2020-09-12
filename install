@@ -13,13 +13,13 @@ if [[ ! -d "$HOME/.config/hssh" ]]; then
 fi
 
 # Check if file config exist in /etc/hssh folder
-if [[ ! -f "/etc/hssh/config" ]]; then
-  sudo cp ./config.template /etc/hssh/config
+if [[ ! -f "/etc/hssh/config.yml" ]]; then
+  sudo cp ./config.example.yml /etc/hssh/config.yml
 fi
 
 # Check if file config exist in $HOME/.config/hssh folder
 if [[ ! -f "$HOME/.config/hssh/config" ]]; then
-  sudo cp ./config.template "$HOME/.config/hssh/config"
+  sudo cp ./config.template.yml "$HOME/.config/hssh/config.yml"
 fi
 
 go build hssh
