@@ -273,6 +273,8 @@ func (hssh *HSSH) Sync() {
 	for i := 0; i < len(files); i++ {
 		wg.Add(1)
 
+		// Go routine start to fetch files using
+		// HTTP Requests
 		go func(url string) {
 
 			defer wg.Done()
