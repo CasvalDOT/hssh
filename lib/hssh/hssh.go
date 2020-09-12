@@ -5,14 +5,16 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"hssh/lib/gitlab"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"regexp"
+	"strings"
 	"sync"
+
+	"gopkg.in/yaml.v2"
 )
 
 // ProviderConfig structure
@@ -206,12 +208,12 @@ func (hssh *HSSH) _parseConnections(format string) string {
 		 the file will be skipped
 	*/
 	for i := 0; i < len(files); i++ {
-		re := regexp.MustCompile(`^.*?%2F`)
-		file := re.ReplaceAllString(files[i], ``)
+		re := regexp.MustCompile(`(%2F|\/)`)
+		path := re.ReplaceAllString(files[i], `,`)
+		fileFolder := strings.Split(path, ",")
 
-		// Get folder path
-		re = regexp.MustCompile(`(\/|%2F).*`)
-		folder := re.ReplaceAllString(files[i], ``)
+		folder := fileFolder[0]
+		file := fileFolder[1]
 
 		folderPath := _getSSHDirectory(folder)
 
