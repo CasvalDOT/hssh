@@ -275,8 +275,6 @@ func (hssh *HSSH) Sync() {
 
 	var wg sync.WaitGroup
 
-	// TODO
-	// Use go routines
 	for i := 0; i < len(files); i++ {
 		wg.Add(1)
 
