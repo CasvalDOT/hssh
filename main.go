@@ -42,7 +42,7 @@ func help() {
 // Main function
 func main() {
 	// Define flags
-	isFuzzy := flag.Bool("f", false, "Enable fuzzysearch using FZF. Default is set to false.")
+	isFuzzy := flag.Bool("f", false, "Enable fuzzysearch. Default is set to false.")
 	isList := flag.Bool("l", false, "Return the list of ssh connections.")
 	isListFuzzy := flag.Bool("lf", false, "Return the list of ssh connections and apply fuzzysearch")
 	isColor := flag.Bool("c", false, "Enable a colored output")
