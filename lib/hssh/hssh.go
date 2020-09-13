@@ -146,7 +146,7 @@ func createTempFile(content string) *os.File {
 /*
 	_search function
 
-	Search for connections in a wall of text using fzf utility
+	Search for connections in a wall of text using fuzzysearch utility
 	with pattern provided using the standard input
 */
 func _search(connections string, fuzzysearch bool) string {
