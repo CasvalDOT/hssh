@@ -32,7 +32,8 @@ type ProviderConfig struct {
 // Config structure
 // Describe the list of providers stored in the configurationo
 type Config struct {
-	Gitlab ProviderConfig `yaml:"gitlab"`
+	FuzzysearchBinary string         `yaml:"fuzzysearch"`
+	Gitlab            ProviderConfig `yaml:"gitlab"`
 }
 
 // HSSH structure
@@ -144,12 +145,33 @@ func createTempFile(content string) *os.File {
 }
 
 /*
+	_resolveFuzzysearchBinary function
+
+	Search executable path of fuzzysearch engine
+*/
+func _resolveFuzzysearchBinary(engine string) bool {
+	cmdOutput := &bytes.Buffer{}
+
+	cmd := exec.Command("which", engine)
+	cmd.Stdout = cmdOutput
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+	err := cmd.Run()
+
+	if err != nil {
+		return false
+	}
+
+	return true
+}
+
+/*
 	_search function
 
 	Search for connections in a wall of text using fuzzysearch utility
 	with pattern provided using the standard input
 */
-func _search(connections string, fuzzysearch bool) string {
+func (hssh *HSSH) _search(connections string, fuzzysearch bool) string {
 	// Store connections parsed in a temp file
 	tmpFile := createTempFile(connections)
 	defer os.Remove(tmpFile.Name())
@@ -160,7 +182,14 @@ func _search(connections string, fuzzysearch bool) string {
 	*/
 	command := "cat " + tmpFile.Name()
 	if fuzzysearch {
-		command = command + " | fzf"
+
+		// Check for binary of fuzzysearch engine in use
+		isBinResolved := _resolveFuzzysearchBinary(hssh.Configuration.FuzzysearchBinary)
+
+		if isBinResolved == true {
+			command = command + " | " + hssh.Configuration.FuzzysearchBinary
+		}
+
 	}
 
 	// Initialize a variable to store output of the command
@@ -309,7 +338,7 @@ func (hssh *HSSH) List(fuzzysearch bool) string {
 	connections := hssh._parseConnections(`$1 -> $3@$2:$4`)
 
 	// Perform a search
-	output := _search(connections, fuzzysearch)
+	output := hssh._search(connections, fuzzysearch)
 
 	// Return output
 	return output
@@ -322,7 +351,7 @@ func (hssh *HSSH) Exec() {
 	connections := hssh._parseConnections(`$1 -> ssh $3@$2 -p $4`)
 
 	// Perform a search (fuzzyseacrh is set to true)
-	command := _search(connections, true)
+	command := hssh._search(connections, true)
 
 	// Remove unused string part to obtain a valid ssh command
 	re := regexp.MustCompile(`^.*?->\s`)
