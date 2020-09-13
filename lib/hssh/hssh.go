@@ -76,6 +76,11 @@ func _readConfig(path string) (Config, error) {
 		return cfg, err
 	}
 
+	// Fallback
+	if len(cfg.FuzzysearchBinary) == 0 {
+		cfg.FuzzysearchBinary = "fzf"
+	}
+
 	return cfg, nil
 }
 
