@@ -1,3 +1,4 @@
+fuzzysearch: 'fzf' # You can use fzf or sk
 gitlab:
   host: ''
   private_token: ''
