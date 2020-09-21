@@ -134,7 +134,7 @@ func _createSSHListFile(folder string, fileName string, content []byte) {
 	the formatted ssh files list configuration
 	after parsing it
 */
-func createTempFile(content string) *os.File {
+func _createTempFile(content string) *os.File {
 
 	tmpFile, err := ioutil.TempFile(os.TempDir(), "hssh-")
 	if err != nil {
@@ -178,7 +178,7 @@ func _resolveFuzzysearchBinary(engine string) bool {
 */
 func (hssh *HSSH) _search(connections string, fuzzysearch bool) string {
 	// Store connections parsed in a temp file
-	tmpFile := createTempFile(connections)
+	tmpFile := _createTempFile(connections)
 	defer os.Remove(tmpFile.Name())
 
 	/*
