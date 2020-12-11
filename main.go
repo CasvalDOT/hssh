@@ -1,109 +1,90 @@
-/*
-	Package main provide the main entry for
-	the utility
-*/
 package main
 
 import (
 	"flag"
 	"fmt"
-	"hssh/lib/hssh"
+	"hssh/config"
+	"hssh/engine"
+	"hssh/providers"
+	"hssh/templates"
 	"os"
-	"regexp"
 )
 
-/*
-	Small function to print text in stardard output.
-	output text can be colorized too
-*/
-func out(content string, withColors bool) {
-
-	if withColors {
-		re := regexp.MustCompile(`(?m)(.*)\s->\s(ssh\s|)(.*?)@(.*?)(:|\s-p\s)(.*)$`)
-		content = re.ReplaceAllString(content, "\033[36m$1\033[0m -> \033[32m$3\033[0m@\033[33m$4\033[0m$5\033[31m$6\033[0m")
-	}
-
-	fmt.Printf(content)
+func printHelp() {
+	fmt.Println(templates.Help)
 }
 
-// help function return the usage of the application
-func help() {
-	fmt.Println("")
-	fmt.Println("HSSH")
-	fmt.Println("")
-	fmt.Println("OPTIONS")
-	fmt.Println("-l return a list of connections available")
-	fmt.Println("-s sync the files in the repository in your local machine")
-	fmt.Println("-f enable fuzzy search (it work only in conjuction with -l flag)")
-	fmt.Println("-le search inside the list in fuzzy search mode and perform an ssh connection to selected host")
-	fmt.Println("")
-}
-
-// Main function
 func main() {
-	// Define flags
-	isFuzzy := flag.Bool("f", false, "Enable fuzzysearch. Default is set to false.")
-	isList := flag.Bool("l", false, "Return the list of ssh connections.")
-	isListFuzzy := flag.Bool("lf", false, "Return the list of ssh connections and apply fuzzysearch")
-	isColor := flag.Bool("c", false, "Enable a colored output")
-	isListExecutable := flag.Bool("le", false, "Search inside the list of connections using fuzzysearch and start a SSH connection")
-	isSync := flag.Bool("s", false, "Sync new updates in the repository fetching new files from Gitlab")
-	isHelp := flag.Bool("h", false, "Print the help")
-
-	// Parse flags
+	withFuzzyEngine := flag.Bool("f", false, templates.MsgFuzzySearchFlag)
+	isList := flag.Bool("l", false, templates.MsgListFlag)
+	isColor := flag.Bool("c", false, templates.MsgColorFlag)
+	isExec := flag.Bool("e", false, templates.MsgExecFlag)
+	isSync := flag.Bool("s", false, templates.MsgSyncFlag)
+	isNewConfig := flag.Bool("C", false, templates.MsgNewConfigFlag)
+	isHelp := flag.Bool("h", false, templates.MsgHelpFlag)
 	flag.Parse()
 
-	// Init hssh instance
-	var hsshInstance = hssh.HSSH{}
+	conf := config.New()
 
-	// Load configuration file
-	_, err := hsshInstance.LoadConfig()
-
-	// Stop application if configuration cannot be load
+	err := conf.Load()
 	if err != nil {
-		os.Exit(1)
+		fmt.Println(err)
 	}
 
-	// Command assignation
-	command := ""
+	providerConfig := conf.GetProvider()
+	defaultProvider := conf.GetDefaultProvider()
 
-	if *isListFuzzy {
-		*isFuzzy = true
+	p := providers.New(
+		defaultProvider,
+		providerConfig.Host,
+		providerConfig.PrivateToken,
+	)
+
+	fuzzyEngine := conf.GetFuzzyEngine()
+	if *withFuzzyEngine == false {
+		fuzzyEngine = ""
 	}
 
-	if *isList || *isListFuzzy {
-		command = "list"
+	e := engine.New(
+		fuzzyEngine,
+		p,
+		providerConfig.Files,
+		*isColor,
+	)
+
+	if *isExec == true {
+		fuzzyEngine = conf.GetFuzzyEngine()
 	}
 
-	if *isSync {
-		command = "sync"
+	if *isHelp == true {
+		printHelp()
+		os.Exit(0)
 	}
 
-	if *isListExecutable {
-		command = "exec"
+	if *isList == true {
+		out, err := e.List()
+		if err != nil {
+			panic(err)
+		}
+		e.Print(out)
+		os.Exit(0)
 	}
 
-	if *isHelp {
-		command = "help"
+	if *isExec == true {
+		e.Exec()
+		os.Exit(0)
 	}
 
-	switch command {
-	case "sync":
-		hsshInstance.Sync()
-		break
-	case "list":
-		result := hsshInstance.List(*isFuzzy)
-		out(result, *isColor)
-		break
-	case "exec":
-		hsshInstance.Exec()
-		break
-	case "help":
-		help()
-		break
-	default:
-		fmt.Println("Invalid action")
-		os.Exit(1)
+	if *isSync == true {
+		e.Sync(providerConfig.ProjectID)
+		os.Exit(0)
 	}
+
+	if *isNewConfig == true {
+		conf.Create(templates.Config)
+		os.Exit(0)
+	}
+
+	printHelp()
 
 }
