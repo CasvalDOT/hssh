@@ -62,10 +62,7 @@ func main() {
 	}
 
 	if *isList == true {
-		out, err := e.List()
-		if err != nil {
-			panic(err)
-		}
+		out, _ := e.List()
 		e.Print(out)
 		os.Exit(0)
 	}
