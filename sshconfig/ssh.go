@@ -76,8 +76,7 @@ func fromRawToFormattedConnection(rawConnection string, format string) string {
 	var templateData = map[string]interface{}{}
 
 	for _, key := range sshConnectionAttributes {
-		value := extractData(key, rawConnection)
-		templateData[key] = &value
+		templateData[key] = extractData(key, rawConnection)
 	}
 
 	tmpl.Execute(&templateBuffer, templateData)
