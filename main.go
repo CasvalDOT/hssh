@@ -15,7 +15,7 @@ func printHelp() {
 }
 
 func main() {
-	withFuzzyEngine := flag.Bool("f", false, templates.MsgFuzzySearchFlag)
+	withFuzzysearch := flag.Bool("f", false, templates.MsgFuzzySearchFlag)
 	isList := flag.Bool("l", false, templates.MsgListFlag)
 	isColor := flag.Bool("c", false, templates.MsgColorFlag)
 	isExec := flag.Bool("e", false, templates.MsgExecFlag)
@@ -40,23 +40,23 @@ func main() {
 		providerConfig.PrivateToken,
 	)
 
-	fuzzyEngine := conf.GetFuzzyEngine()
-	if *withFuzzyEngine == false {
-		fuzzyEngine = ""
+	fuzzysearch := conf.GetFuzzysearch()
+	if *withFuzzysearch == false {
+		fuzzysearch = ""
 	}
 
 	e := engine.New(
-		fuzzyEngine,
+		fuzzysearch,
 		p,
 		providerConfig.Files,
 		*isColor,
 	)
 
 	if *isExec == true {
-		fuzzyEngine = conf.GetFuzzyEngine()
+		fuzzysearch = conf.GetFuzzysearch()
 	}
 
-	if fuzzyEngine == "" && (*isExec == true || *withFuzzyEngine == true) {
+	if fuzzysearch == "" && (*isExec == true || *withFuzzysearch == true) {
 		fmt.Println(templates.ErrInvalidFuzzysearchBInary)
 		os.Exit(1)
 	}

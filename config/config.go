@@ -26,7 +26,7 @@ type Config interface {
 
 	GetProvider() providerConfig
 	GetDefaultProvider() string
-	GetFuzzyEngine() string
+	GetFuzzysearch() string
 }
 
 type providerConfig struct {
@@ -38,7 +38,7 @@ type providerConfig struct {
 
 type config struct {
 	Provider        providerConfig `yaml:"provider"`
-	FuzzyEngine     string         `yaml:"fuzzyengine"`
+	Fuzzysearch     string         `yaml:"fuzzysearch"`
 	DefaultProvider string         `yaml:"default_provider"`
 }
 
@@ -66,12 +66,12 @@ func (c *config) read(path string) error {
 		return err
 	}
 
-	if c.FuzzyEngine == "" {
-		c.FuzzyEngine = "fzf"
+	if c.Fuzzysearch == "" {
+		c.Fuzzysearch = "fzf"
 	}
 
 	if c.fuzzyBinaryExist() == false {
-		c.FuzzyEngine = ""
+		c.Fuzzysearch = ""
 	}
 
 	return nil
@@ -79,7 +79,7 @@ func (c *config) read(path string) error {
 
 func (c *config) fuzzyBinaryExist() bool {
 	cmdOutput := &bytes.Buffer{}
-	cmd := exec.Command("which", c.FuzzyEngine)
+	cmd := exec.Command("which", c.Fuzzysearch)
 	cmd.Stdout = cmdOutput
 	cmd.Stderr = nil
 	cmd.Stdin = os.Stdin
@@ -160,8 +160,8 @@ func (c *config) GetDefaultProvider() string {
 	return c.DefaultProvider
 }
 
-func (c *config) GetFuzzyEngine() string {
-	return c.FuzzyEngine
+func (c *config) GetFuzzysearch() string {
+	return c.Fuzzysearch
 }
 
 // New ...
