@@ -12,19 +12,19 @@ import (
 
 var pairRegex = " (.*?)(\\s|#|$)"
 var nameRegex = "(.*?) Hostname"
-var sshConnectionAttributes = []string{
-	"Name",
-	"Hostname",
-	"IdentityFile",
-	"User",
-	"Port",
+var sshConnectionAttributes = [][]string{
+	{"Name", "-"},
+	{"Hostname", "-"},
+	{"IdentityFile", ""},
+	{"User", "root"},
+	{"Port", "22"},
 }
 var configRegexs = [5]replaceObject{
 	{`(?mi)#.*\s`, ""},
 	{`(?mi)Host `, "#Name "},
 	{`(?mi)\s\s+`, `\n`},
 	{`(?mi)\\n`, ""},
-	{`(` + strings.Join(sshConnectionAttributes, "|") + `)`, ` $1`},
+	{`(Name|Hostname|IdentityFile|User|Port)`, ` $1`},
 }
 
 type replaceObject struct {
@@ -52,6 +52,14 @@ func extractData(key string, context string) string {
 	return matchs[0][1]
 }
 
+func valueOrFallback(value string, defaultValue string) string {
+	if value == "" {
+		return defaultValue
+	}
+
+	return value
+}
+
 func listConnections(rawConnections string) []string {
 	for _, reg := range configRegexs {
 		re := regexp.MustCompile(reg.value)
@@ -62,11 +70,6 @@ func listConnections(rawConnections string) []string {
 }
 
 func fromRawToFormattedConnection(rawConnection string, format string) string {
-	hostname := extractData("Hostname", rawConnection)
-	if rawConnection == "" || hostname == "" {
-		return ""
-	}
-
 	tmpl, err := template.New("T").Parse(format)
 	if err != nil {
 		return ""
@@ -76,7 +79,11 @@ func fromRawToFormattedConnection(rawConnection string, format string) string {
 	var templateData = map[string]interface{}{}
 
 	for _, key := range sshConnectionAttributes {
-		templateData[key] = extractData(key, rawConnection)
+		value := valueOrFallback(
+			extractData(key[0], rawConnection),
+			key[1],
+		)
+		templateData[key[0]] = value
 	}
 
 	tmpl.Execute(&templateBuffer, templateData)
