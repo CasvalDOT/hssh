@@ -56,6 +56,11 @@ func main() {
 		fuzzyEngine = conf.GetFuzzyEngine()
 	}
 
+	if fuzzyEngine == "" && (*isExec == true || *withFuzzyEngine == true) {
+		fmt.Println(templates.ErrInvalidFuzzysearchBInary)
+		os.Exit(1)
+	}
+
 	if *isHelp == true {
 		printHelp()
 		os.Exit(0)
