@@ -16,8 +16,8 @@ var allowedPaths = []string{
 	"{{HOME}}/.config/hssh",
 }
 
-// Config ..
-type Config interface {
+// IConfig ..
+type IConfig interface {
 	fuzzyBinaryExist() bool
 	read(string) error
 
@@ -165,7 +165,7 @@ func (c *config) GetFuzzysearch() string {
 }
 
 // New ...
-func New() Config {
+func New() IConfig {
 	// Read files here of configuration
 	return &config{}
 }

@@ -1,7 +1,7 @@
 package providers
 
-// Provider ...
-type Provider interface {
+// IProvider ...
+type IProvider interface {
 	iGet
 	iGetFile
 }
@@ -31,7 +31,7 @@ type provider struct {
 }
 
 // New ...
-func New(driver string, url string, privateToken string) Provider {
+func New(driver string, url string, privateToken string) IProvider {
 	if driver == "gitlab" {
 		return &gitlab{
 			provider: provider{

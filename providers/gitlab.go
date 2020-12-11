@@ -59,7 +59,7 @@ func (g *gitlab) GetFile(projectID string, filePath string) (*fileDecoded, error
 }
 
 // NewGitlab ...
-func NewGitlab(url string, privateToken string) Provider {
+func NewGitlab(url string, privateToken string) IProvider {
 	return &gitlab{
 		provider: provider{
 			url:          url,

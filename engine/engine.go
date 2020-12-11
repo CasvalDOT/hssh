@@ -24,7 +24,7 @@ type IEngine interface {
 type engine struct {
 	fuzzysearch   string
 	filesToSearch []string
-	provider      providers.Provider
+	provider      providers.IProvider
 	colors        bool
 }
 
@@ -132,7 +132,7 @@ func (e *engine) Print(content string) {
 }
 
 // New ...
-func New(fuzzysearch string, p providers.Provider, filesToSearch []string, colors bool) IEngine {
+func New(fuzzysearch string, p providers.IProvider, filesToSearch []string, colors bool) IEngine {
 	return &engine{
 		fuzzysearch:   fuzzysearch,
 		provider:      p,
