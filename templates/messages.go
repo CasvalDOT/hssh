@@ -20,3 +20,6 @@ var MsgNewConfigFlag = "Create a new configuration file"
 
 // MsgHelpFlag ...
 var MsgHelpFlag = "Print help"
+
+// ErrInvalidFuzzysearchBInary ...
+var ErrInvalidFuzzysearchBInary = "Missing or invalid fuzzysearch binary"
