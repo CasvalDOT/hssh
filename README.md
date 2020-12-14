@@ -2,7 +2,7 @@
 > An heply utility for happy coders to easily search and connect into remote servers
 
 ## Dependencies
-Hssh has the following dependencies:
+To use at 100% this tool, you must install the following addictions:
 - [fzf](https://github.com/junegunn/fzf) - Used to search in interactive mode
 
 
@@ -31,19 +31,40 @@ brew tap heply/tools git@gitlab.com:Casval/homebrew-heply.git
 brew install hssh
 ```
 
+### Download releases
+Check the releases
+
 
 ## Configuration
 You must set the following params in your configuration file.
 The config file can be in `/etc/hssh/config.yml` and can be overwritten 
 from `~/.config/hssh/config.yml`
+In alternative you can generate new config template with the
+following command:
 
-#### Gitlab
-Under the Gitlab section you must declare the following params.
+`hssh -C`
 
+Below an example of configuration generated:
+
+```
+fuzzysearch: "fzf"
+default_provider: "gitlab"
+provider:
+  host: "https://gitlab.com/api/v4"
+  private_token: ""
+  project_id: ""
+  files:
+    - ""
+```
+
+#### Providers
+Hssh support multiple providers for fetch remote configs repository.
+NOTE: Currently is supported gitlab. 
+Under the provider section please fill the following attributes:
 - `host` the gitlab api url
 - `private_token` The private token use to auth in gitlab.
 - `project_id` The ID of the repository where to fetch configuration files
-- `files` The path of configuration files separated by comma
+- `files` The path of configuration files separated by comma. NOTE: the file must be escaped: for example: "config.test.d%2Ftest"
 
 ## Usage
 To see available options and usage run:
@@ -65,7 +86,7 @@ alias sshls='hssh -l -c'
 alias sshfzf='hssh -f -l -c'
 
 # To connect to host using host configuration
-alias sshexe='hssh -le'
+alias sshexe='hssh -e'
 ```
 
 
