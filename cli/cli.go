@@ -1,4 +1,9 @@
-package engine
+// Package cli ...
+/*
+The cli package contains a bunch of methods
+mapped 1:1 with the flags provided by
+*/
+package cli
 
 import (
 	"bytes"
@@ -11,41 +16,42 @@ import (
 	"sync"
 )
 
-// IEngine ...
-type IEngine interface {
+// ICli ...
+type ICli interface {
 	List() (string, error)
 	Sync(string)
 	Exec() error
+	Print(string)
+
 	search(string) (string, error)
 	getConnections(string) (string, error)
-	Print(string)
 }
 
-type engine struct {
+type cli struct {
 	fuzzysearch   string
 	filesToSearch []string
 	provider      providers.IProvider
 	colors        bool
 }
 
-func (e *engine) getConnections(format string) (string, error) {
+func (c *cli) getConnections(format string) (string, error) {
 	connections, err := sshconfig.Format(format)
 	if err != nil {
 		return "", err
 	}
 
-	return e.search(connections)
+	return c.search(connections)
 }
 
-func (e *engine) search(connections string) (string, error) {
+func (c *cli) search(connections string) (string, error) {
 	tmpFile, err := sshconfig.Temporize(connections)
 	if err != nil {
 		return "", err
 	}
 	command := "cat " + tmpFile.Name()
 
-	if e.fuzzysearch != "" {
-		command = command + " | " + e.fuzzysearch
+	if c.fuzzysearch != "" {
+		command = command + " | " + c.fuzzysearch
 	}
 
 	cmdOutput := &bytes.Buffer{}
@@ -68,13 +74,13 @@ func (e *engine) search(connections string) (string, error) {
 }
 
 // List ...
-func (e *engine) List() (string, error) {
-	return e.getConnections(`{{.Name}} -> {{.User}}@{{.Hostname}}:{{.Port}}`)
+func (c *cli) List() (string, error) {
+	return c.getConnections(`{{.Name}} -> {{.User}}@{{.Hostname}}:{{.Port}}`)
 }
 
 // Exec ...
-func (e *engine) Exec() error {
-	command, err := e.getConnections(`{{.Name}} -> ssh {{.User}}@{{.Hostname}} -p {{.Port}}`)
+func (c *cli) Exec() error {
+	command, err := c.getConnections(`{{.Name}} -> ssh {{.User}}@{{.Hostname}} -p {{.Port}}`)
 
 	// Remove unused string part to obtain a valid ssh command
 	re := regexp.MustCompile(`^.*?->\s`)
@@ -95,16 +101,16 @@ func (e *engine) Exec() error {
 }
 
 // Sync ...
-func (e *engine) Sync(projectID string) {
+func (c *cli) Sync(projectID string) {
 	var wg sync.WaitGroup
 
-	for _, fileFromProvider := range e.filesToSearch {
+	for _, fileFromProvider := range c.filesToSearch {
 		wg.Add(1)
 
 		go func(file string) {
 			defer wg.Done()
 
-			fileDecoded, err := e.provider.GetFile(projectID, file)
+			fileDecoded, err := c.provider.GetFile(projectID, file)
 			if err != nil {
 				return
 			}
@@ -121,9 +127,9 @@ func (e *engine) Sync(projectID string) {
 }
 
 // Print
-func (e *engine) Print(content string) {
+func (c *cli) Print(content string) {
 
-	if e.colors {
+	if c.colors {
 		re := regexp.MustCompile(`(?m)(.*)\s->\s(ssh\s|)(.*?)@(.*?)(:|\s-p\s)(.*)$`)
 		content = re.ReplaceAllString(content, "\033[36m$1\033[0m -> \033[32m$3\033[0m@\033[33m$4\033[0m$5\033[31m$6\033[0m")
 	}
@@ -132,8 +138,8 @@ func (e *engine) Print(content string) {
 }
 
 // New ...
-func New(fuzzysearch string, p providers.IProvider, filesToSearch []string, colors bool) IEngine {
-	return &engine{
+func New(fuzzysearch string, p providers.IProvider, filesToSearch []string, colors bool) ICli {
+	return &cli{
 		fuzzysearch:   fuzzysearch,
 		provider:      p,
 		filesToSearch: filesToSearch,

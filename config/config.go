@@ -1,5 +1,10 @@
 package config
 
+/*
+Config entity is use to interact with the file
+configuration and the environemnt of the cli.
+*/
+
 import (
 	"bytes"
 	"errors"

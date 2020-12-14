@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"hssh/cli"
 	"hssh/config"
-	"hssh/engine"
 	"hssh/providers"
 	"hssh/templates"
 	"os"
@@ -45,7 +45,7 @@ func main() {
 		fuzzysearch = ""
 	}
 
-	e := engine.New(
+	c := cli.New(
 		fuzzysearch,
 		p,
 		providerConfig.Files,
@@ -67,18 +67,18 @@ func main() {
 	}
 
 	if *isList == true {
-		out, _ := e.List()
-		e.Print(out)
+		out, _ := c.List()
+		c.Print(out)
 		os.Exit(0)
 	}
 
 	if *isExec == true {
-		e.Exec()
+		c.Exec()
 		os.Exit(0)
 	}
 
 	if *isSync == true {
-		e.Sync(providerConfig.ProjectID)
+		c.Sync(providerConfig.ProjectID)
 		os.Exit(0)
 	}
 

@@ -1,3 +1,8 @@
+// Package sshconfig ...
+/*
+This package provide a small set of functions to interact with ssh files
+configuration.
+*/
 package sshconfig
 
 import (

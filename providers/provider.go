@@ -1,5 +1,13 @@
 package providers
 
+/*
+Provider is a abstract class that decscribe
+the concrete classes used to fetch the connections
+files from a remote repository
+
+NOTE: Now is currently supported gitlab
+*/
+
 // IProvider ...
 type IProvider interface {
 	iGet
