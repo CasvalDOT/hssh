@@ -163,17 +163,13 @@ func Search() ([]string, error) {
 	sshAbsolutePath := makePath("")
 	filepath.Walk(sshAbsolutePath, func(path string, info os.FileInfo, err error) error {
 
-		if err != nil {
-			return err
-		}
-
-		if strings.Contains(path, "config") == false {
+		if err != nil ||
+			strings.Contains(path, "config") == false ||
+			info.IsDir() == true {
 			return nil
 		}
 
-		if info.IsDir() == false {
-			files = append(files, path)
-		}
+		files = append(files, path)
 
 		return nil
 	})
