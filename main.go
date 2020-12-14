@@ -41,8 +41,13 @@ func main() {
 	)
 
 	fuzzysearch := conf.GetFuzzysearch()
-	if *withFuzzysearch == false {
+	if *withFuzzysearch == false && *isExec == false {
 		fuzzysearch = ""
+	}
+
+	if fuzzysearch == "" && (*isExec == true || *withFuzzysearch == true) {
+		fmt.Println(templates.ErrInvalidFuzzysearchBInary)
+		os.Exit(1)
 	}
 
 	c := cli.New(
@@ -51,15 +56,6 @@ func main() {
 		providerConfig.Files,
 		*isColor,
 	)
-
-	if *isExec == true {
-		fuzzysearch = conf.GetFuzzysearch()
-	}
-
-	if fuzzysearch == "" && (*isExec == true || *withFuzzysearch == true) {
-		fmt.Println(templates.ErrInvalidFuzzysearchBInary)
-		os.Exit(1)
-	}
 
 	if *isHelp == true {
 		printHelp()
