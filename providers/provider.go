@@ -43,5 +43,5 @@ func New(driver string, url string, privateToken string) IProvider {
 	if driver == "gitlab" {
 		return NewGitlab(url, privateToken)
 	}
-	return nil
+	panic("INVALID PROVIDER")
 }
