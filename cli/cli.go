@@ -8,14 +8,19 @@ package cli
 import (
 	"bytes"
 	"fmt"
+	"hssh/connections"
 	"hssh/providers"
-	"hssh/sshconfig"
 	"os"
 	"os/exec"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 )
+
+var tempFileName = "hssh.tmp"
+var printRegexp = `(?m)(.*)\s->\s(ssh\s|)(.*?)@(.*?)(:|\s-p\s)(.*)$`
+var defaultConnectionFormat = "[{{.ID}}] {{.Name}} -> {{.User}}@{{.Hostname}}:{{.Port}}"
 
 // ICli ...
 type ICli interface {
@@ -25,27 +30,38 @@ type ICli interface {
 	Print(string)
 
 	search(string) (string, error)
-	getConnections(string) (string, error)
+	toTempFile(string) (*os.File, error)
 }
 
 type cli struct {
-	fuzzysearch   string
-	filesToSearch []string
-	provider      providers.IProvider
-	colors        bool
+	fuzzysearch string
+	sshUA       connections.ISSHUA
+	provider    providers.IProvider
+	colors      bool
 }
 
-func (c *cli) getConnections(format string) (string, error) {
-	connections, err := sshconfig.Format(format)
-	if err != nil {
-		return "", err
+func (c *cli) toTempFile(format string) (*os.File, error) {
+	connections := c.sshUA.List()
+	var context = ""
+	for _, connection := range connections {
+		formattedConnection, err := connection.ToString(format)
+		if err != nil {
+			continue
+		}
+		context += formattedConnection + "\n"
 	}
 
-	return c.search(connections)
+	return createTempFile(context)
 }
 
-func (c *cli) search(connections string) (string, error) {
-	tmpFile, err := sshconfig.Temporize(connections)
+func (c *cli) getIDFromSelection(selection string) (int, error) {
+	rgx := regexp.MustCompile("(?mi).*\\[(.*?)\\].*\n")
+	idString := rgx.ReplaceAllString(selection, "$1")
+	return strconv.Atoi(idString)
+}
+
+func (c *cli) search(format string) (string, error) {
+	tmpFile, err := c.toTempFile(format)
 	if err != nil {
 		return "", err
 	}
@@ -76,27 +92,25 @@ func (c *cli) search(connections string) (string, error) {
 
 // List ...
 func (c *cli) List() (string, error) {
-	return c.getConnections(`{{.Name}} -> {{.User}}@{{.Hostname}}:{{.Port}}`)
+	connectionFormat := defaultConnectionFormat
+	return c.search(connectionFormat)
 }
 
 // Exec ...
 func (c *cli) Exec() error {
-	command, err := c.getConnections(`{{.Name}} -> ssh {{.User}}@{{.Hostname}} -p {{.Port}}`)
-
-	// Remove unused string part to obtain a valid ssh command
-	re := regexp.MustCompile(`^.*?->\s`)
-	command = re.ReplaceAllString(command, "")
-
-	// Execute SSH command returned
-	cmd := exec.Command("bash", "-c", command)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-
-	err = cmd.Run()
+	results, err := c.List()
 	if err != nil {
 		return err
 	}
+
+	id, err := c.getIDFromSelection(results)
+	if err != nil {
+		return err
+	}
+
+	connection := c.sshUA.SearchConnectionByID(id)
+
+	connection.Connect()
 
 	return nil
 }
@@ -126,7 +140,7 @@ func (c *cli) Sync(projectID string, path string) {
 			folder := splits[0]
 			fileName := splits[1]
 
-			sshconfig.Create(folder, fileName, content)
+			c.sshUA.Create(folder, fileName, content)
 
 		}(fileFromProvider.ID, fileFromProvider.Path)
 	}
@@ -136,9 +150,8 @@ func (c *cli) Sync(projectID string, path string) {
 
 // Print
 func (c *cli) Print(content string) {
-
 	if c.colors {
-		re := regexp.MustCompile(`(?m)(.*)\s->\s(ssh\s|)(.*?)@(.*?)(:|\s-p\s)(.*)$`)
+		re := regexp.MustCompile(printRegexp)
 		content = re.ReplaceAllString(content, "\033[36m$1\033[0m -> \033[32m$3\033[0m@\033[33m$4\033[0m$5\033[31m$6\033[0m")
 	}
 
@@ -146,10 +159,11 @@ func (c *cli) Print(content string) {
 }
 
 // New ...
-func New(fuzzysearch string, p providers.IProvider, colors bool) ICli {
+func New(fuzzysearch string, p providers.IProvider, sshUA connections.ISSHUA, colors bool) ICli {
 	return &cli{
 		fuzzysearch: fuzzysearch,
 		provider:    p,
+		sshUA:       sshUA,
 		colors:      colors,
 	}
 }

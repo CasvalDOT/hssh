@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"hssh/cli"
 	"hssh/config"
+	"hssh/connections"
 	"hssh/providers"
 	"hssh/templates"
 	"os"
@@ -40,6 +41,8 @@ func main() {
 		providerConfig.PrivateToken,
 	)
 
+	sshUA := connections.NewSSHUA()
+
 	fuzzysearch := conf.GetFuzzysearch()
 	if *withFuzzysearch == false && *isExec == false {
 		fuzzysearch = ""
@@ -53,6 +56,7 @@ func main() {
 	c := cli.New(
 		fuzzysearch,
 		p,
+		sshUA,
 		*isColor,
 	)
 
