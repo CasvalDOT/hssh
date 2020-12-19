@@ -2,14 +2,16 @@
 > An heply utility for happy coders to easily search and connect into remote servers
 
 ## Dependencies
-To use at 100% this tool, you must install the following addictions:
-- [fzf](https://github.com/junegunn/fzf) - Used to search in interactive mode
+HSSH use fuzzysearch. So a valid bianry is required.
+Below you can see two examples of fuzzy finders:
+- [fzf](https://github.com/junegunn/fzf) - Written in **GO**
+- [skim](https://github.com/lotabout/skim) - Written in **Rust**
 
 
 ## Install
-Two methods are available:
+The available methods are:
 
-### Manual
+### Clone
 Clone or download the repository and then inside the folder run:
 
 - `go mod init hssh`
@@ -17,6 +19,9 @@ Clone or download the repository and then inside the folder run:
 - `go build hssh`
 
 It generate a valid binary. Put the generated binary inside a valid binary path (Check your env `$PATH`)
+
+### Release
+Download one of the releses
 
 ### Brew
 Due to private nature of the repository, you must create first a personal access token
@@ -30,10 +35,6 @@ After that execute the following commands
 brew tap heply/tools git@gitlab.com:Casval/homebrew-heply.git
 brew install hssh
 ```
-
-### Download releases
-Check the releases
-
 
 ## Configuration
 You must set the following params in your configuration file.
@@ -53,18 +54,18 @@ provider:
   host: "https://gitlab.com/api/v4"
   private_token: ""
   project_id: ""
-  files:
-    - ""
+  path: ""
 ```
 
 #### Providers
 Hssh support multiple providers for fetch remote configs repository.
-NOTE: Currently is supported gitlab. 
+
+NOTE: Currently gitlab in only supported.
 Under the provider section please fill the following attributes:
 - `host` the gitlab api url
 - `private_token` The private token use to auth in gitlab.
 - `project_id` The ID of the repository where to fetch configuration files
-- `files` The path of configuration files separated by comma. NOTE: the file must be escaped: for example: "config.test.d%2Ftest"
+- `path` The subfolder where search files
 
 ## Usage
 To see available options and usage run:
