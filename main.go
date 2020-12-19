@@ -28,7 +28,7 @@ func main() {
 
 	err := conf.Load()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(templates.ErrLoadConfiguration, err)
 	}
 
 	providerConfig := conf.GetProvider()

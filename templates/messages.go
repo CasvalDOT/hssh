@@ -23,3 +23,6 @@ var MsgHelpFlag = "Print help"
 
 // ErrInvalidFuzzysearchBInary ...
 var ErrInvalidFuzzysearchBInary = "Missing or invalid fuzzysearch binary"
+
+// ErrLoadConfiguration ...
+var ErrLoadConfiguration = "Error during load configuration"
