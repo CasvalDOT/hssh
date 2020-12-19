@@ -124,11 +124,7 @@ func (c *cli) Exec() error {
 		return err
 	}
 
-	connection := c.sshUA.SearchConnectionByID(id)
-
-	connection.Connect()
-
-	return nil
+	return c.sshUA.Connect(id)
 }
 
 /*
@@ -161,7 +157,7 @@ func (c *cli) Sync(projectID string, path string) {
 			folder := splits[0]
 			fileName := splits[1]
 
-			c.sshUA.Create(folder, fileName, content)
+			c.sshUA.CreateConfig(folder, fileName, content)
 
 		}(fileFromProvider.ID, fileFromProvider.Path)
 	}

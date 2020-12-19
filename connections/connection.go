@@ -2,8 +2,6 @@ package connections
 
 import (
 	"bytes"
-	"os"
-	"os/exec"
 	"strings"
 	"text/template"
 )
@@ -11,7 +9,6 @@ import (
 // IConnection ...
 type IConnection interface {
 	ToString(string) (string, error)
-	Connect() error
 
 	GetID() int
 	GetName() string
@@ -96,22 +93,6 @@ func (c *connection) ToString(format string) (string, error) {
 	connectionString = string(templateBuffer.Bytes())
 
 	return connectionString, nil
-}
-
-// Connect ...
-/*............................................................................*/
-func (c *connection) Connect() error {
-	cmd := exec.Command("bash", "-c", c.GetSSHConnection())
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-
-	err := cmd.Run()
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // NewConnection ...

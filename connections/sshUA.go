@@ -3,6 +3,7 @@ package connections
 import (
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -40,6 +41,7 @@ var configRegexs = [5]replaceObject{
 // ISSHUA ...
 type ISSHUA interface {
 	Load()
+	Connect(int) error
 	List() []IConnection
 	SearchConnectionByID(int) IConnection
 	CreateConfig(string, string, []byte) (string, error)
@@ -137,6 +139,21 @@ func (ssh *sshUA) SearchConnectionByID(id int) IConnection {
 		if connection.GetID() == id {
 			return connection
 		}
+	}
+
+	return nil
+}
+
+func (ssh *sshUA) Connect(connectionID int) error {
+	connection := ssh.SearchConnectionByID(connectionID)
+	cmd := exec.Command("bash", "-c", connection.GetSSHConnection())
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+
+	err := cmd.Run()
+	if err != nil {
+		return err
 	}
 
 	return nil
