@@ -15,14 +15,14 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-var _resolverBinary = "which"
-var _configFileName = "config.yml"
-var _defaultFuzzysearch = "fzf"
-var _homePlaceholder = "{{HOME}}"
+var resolverBinary = "which"
+var configFileName = "config.yml"
+var defaultFuzzysearch = "fzf"
+var homePlaceholder = "{{HOME}}"
 
 var allowedPaths = []string{
 	"/etc/hssh",
-	_homePlaceholder + "/.config/hssh",
+	homePlaceholder + "/.config/hssh",
 }
 
 // IConfig ..
@@ -56,7 +56,7 @@ func replaceHomePlaceholder(path string) (string, error) {
 		return path, err
 	}
 
-	regex := regexp.MustCompile(_homePlaceholder)
+	regex := regexp.MustCompile(homePlaceholder)
 	return regex.ReplaceAllString(path, userHomeDir), nil
 }
 
@@ -75,7 +75,7 @@ func (c *config) read(path string) error {
 	}
 
 	if c.Fuzzysearch == "" {
-		c.Fuzzysearch = _defaultFuzzysearch
+		c.Fuzzysearch = defaultFuzzysearch
 	}
 
 	/*
@@ -93,7 +93,7 @@ func (c *config) read(path string) error {
 
 func (c *config) fuzzyBinaryExist() bool {
 	cmdOutput := &bytes.Buffer{}
-	cmd := exec.Command(_resolverBinary, c.Fuzzysearch)
+	cmd := exec.Command(resolverBinary, c.Fuzzysearch)
 	cmd.Stdout = cmdOutput
 	cmd.Stderr = nil
 	cmd.Stdin = os.Stdin
@@ -109,7 +109,7 @@ func (c *config) fuzzyBinaryExist() bool {
 // Create ...
 func (c *config) Create(content string) error {
 	for _, path := range allowedPaths {
-		fileName := _configFileName
+		fileName := configFileName
 		pathFolder, err := replaceHomePlaceholder(path)
 		if err != nil {
 			continue
@@ -140,7 +140,7 @@ func (c *config) Create(content string) error {
 func (c *config) Load() error {
 	fileReads := 0
 	for _, path := range allowedPaths {
-		pathWithFile := path + "/" + _configFileName
+		pathWithFile := path + "/" + configFileName
 		pathWithFile, err := replaceHomePlaceholder(pathWithFile)
 		if err != nil {
 			continue
