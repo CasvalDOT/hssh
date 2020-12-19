@@ -178,6 +178,5 @@ func (c *config) GetFuzzysearch() string {
 
 // New ...
 func New() IConfig {
-	// Read files here of configuration
 	return &config{}
 }
