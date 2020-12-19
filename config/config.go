@@ -47,7 +47,6 @@ type config struct {
 	DefaultProvider string         `yaml:"default_provider"`
 }
 
-// TODO: move outside
 func replaceHomePlaceholder(path string) (string, error) {
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
