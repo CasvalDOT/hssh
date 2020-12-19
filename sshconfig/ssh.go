@@ -15,15 +15,25 @@ import (
 	"text/template"
 )
 
+type sshConnectionAttribute struct {
+	name         string
+	defaultValue string
+}
+
+var tempFileName = "hssh.tmp"
+var templateName = "config.name"
+var filePatternMatch = "config"
 var pairRegex = " (.*?)(\\s|#|$)"
 var nameRegex = "(.*?) Hostname"
-var sshConnectionAttributes = [][]string{
-	{"Name", "-"},
-	{"Hostname", "-"},
-	{"IdentityFile", ""},
-	{"User", "root"},
-	{"Port", "22"},
+
+var sshConnectionAttributes = []sshConnectionAttribute{
+	{name: "Name", defaultValue: "-"},
+	{name: "Hostname", defaultValue: "-"},
+	{name: "IdentityFile", defaultValue: ""},
+	{name: "User", defaultValue: "root"},
+	{name: "Port", defaultValue: "22"},
 }
+
 var configRegexs = [5]replaceObject{
 	{`(?mi)#.*\s`, ""},
 	{`(?mi)Host `, "#Name "},
@@ -75,7 +85,7 @@ func listConnections(rawConnections string) []string {
 }
 
 func fromRawToFormattedConnection(rawConnection string, format string) string {
-	tmpl, err := template.New("T").Parse(format)
+	tmpl, err := template.New(templateName).Parse(format)
 	if err != nil {
 		return ""
 	}
@@ -83,12 +93,12 @@ func fromRawToFormattedConnection(rawConnection string, format string) string {
 	var templateBuffer bytes.Buffer
 	var templateData = map[string]interface{}{}
 
-	for _, key := range sshConnectionAttributes {
+	for _, attribute := range sshConnectionAttributes {
 		value := valueOrFallback(
-			extractData(key[0], rawConnection),
-			key[1],
+			extractData(attribute.name, rawConnection),
+			attribute.defaultValue,
 		)
-		templateData[key[0]] = value
+		templateData[attribute.name] = value
 	}
 
 	tmpl.Execute(&templateBuffer, templateData)
@@ -136,7 +146,7 @@ func Create(folderName string, fileName string, content []byte) (string, error) 
 
 // Temporize ...
 func Temporize(content string) (*os.File, error) {
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "hssh-")
+	tmpFile, err := ioutil.TempFile(os.TempDir(), tempFileName)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +174,7 @@ func Search() ([]string, error) {
 	filepath.Walk(sshAbsolutePath, func(path string, info os.FileInfo, err error) error {
 
 		if err != nil ||
-			strings.Contains(path, "config") == false ||
+			strings.Contains(path, filePatternMatch) == false ||
 			info.IsDir() == true {
 			return nil
 		}
