@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"os/exec"
+	"strings"
 	"text/template"
 )
 
@@ -69,12 +70,15 @@ func (c *connection) GetHostname() string {
 // GetSSHConnection ...
 /*............................................................................*/
 func (c *connection) GetSSHConnection() string {
-	var command = "ssh "
-	command += c.User + "@" + c.Hostname + " -p " + c.Port
-	if c.IdentityFile != "" {
-		command += " -i " + c.IdentityFile
+	commandList := []string{
+		"ssh",
+		c.User + "@" + c.Hostname,
+		"-p " + c.Port,
 	}
-	return command
+	if c.IdentityFile != "" {
+		commandList = append(commandList, "-i "+c.IdentityFile)
+	}
+	return strings.Join(commandList, " ")
 }
 
 // ToString ...
