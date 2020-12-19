@@ -11,7 +11,14 @@ import (
 type IConnection interface {
 	ToString(string) (string, error)
 	Connect() error
+
 	GetID() int
+	GetName() string
+	GetPort() string
+	GetIdentityFile() string
+	GetHostname() string
+	GetUser() string
+	GetSSHConnection() string
 }
 
 type connection struct {
@@ -59,6 +66,17 @@ func (c *connection) GetHostname() string {
 	return c.Hostname
 }
 
+// GetSSHConnection ...
+/*............................................................................*/
+func (c *connection) GetSSHConnection() string {
+	var command = "ssh "
+	command += c.User + "@" + c.Hostname + " -p " + c.Port
+	if c.IdentityFile != "" {
+		command += " -i " + c.IdentityFile
+	}
+	return command
+}
+
 // ToString ...
 /*............................................................................*/
 func (c *connection) ToString(format string) (string, error) {
@@ -79,10 +97,7 @@ func (c *connection) ToString(format string) (string, error) {
 // Connect ...
 /*............................................................................*/
 func (c *connection) Connect() error {
-	var argsOfTheCommand = "ssh "
-	argsOfTheCommand += c.User + "@" + c.Hostname + " -p " + c.Port
-
-	cmd := exec.Command("bash", "-c", argsOfTheCommand)
+	cmd := exec.Command("bash", "-c", c.GetSSHConnection())
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
