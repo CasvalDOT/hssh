@@ -1,8 +1,8 @@
 # HSSH 
-> An heply utility for happy coders to easily search and connect into remote servers
+> An heply utility for happy coders to easily search and connect into remote servers.
 
 ## Dependencies
-HSSH use fuzzysearch. So a valid bianry is required.
+HSSH use fuzzysearch. So a valid binary is required.
 Below you can see two examples of fuzzy finders:
 - [fzf](https://github.com/junegunn/fzf) - Written in **GO**
 - [skim](https://github.com/lotabout/skim) - Written in **Rust**
