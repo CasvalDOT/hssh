@@ -33,7 +33,6 @@ type IConfig interface {
 
 	Load() error
 	Create(string) error
-
 	GetProvider() providerConfig
 	GetDefaultProvider() string
 	GetFuzzysearch() string
