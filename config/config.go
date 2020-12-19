@@ -123,12 +123,12 @@ func (c *config) Create(content string) error {
 			pathWithFile = pathWithFile + ".example"
 		}
 
-		fmt.Println(pathWithFile)
 		file, err := os.Create(pathWithFile)
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
+		fmt.Println("File", pathWithFile, "created")
 
 		defer file.Close()
 		file.WriteString(content)
