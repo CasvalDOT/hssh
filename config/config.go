@@ -16,9 +16,14 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+var _resolverBinary = "which"
+var _configFileName = "config.yml"
+var _defaultFuzzysearch = "fzf"
+var _homePlaceholder = "{{HOME}}"
+
 var allowedPaths = []string{
 	"/etc/hssh",
-	"{{HOME}}/.config/hssh",
+	_homePlaceholder + "/.config/hssh",
 }
 
 // IConfig ..
@@ -53,7 +58,7 @@ func replaceHomePlaceholder(path string) (string, error) {
 		return path, err
 	}
 
-	regex := regexp.MustCompile("{{HOME}}")
+	regex := regexp.MustCompile(_homePlaceholder)
 	return regex.ReplaceAllString(path, userHomeDir), nil
 }
 
@@ -72,9 +77,15 @@ func (c *config) read(path string) error {
 	}
 
 	if c.Fuzzysearch == "" {
-		c.Fuzzysearch = "fzf"
+		c.Fuzzysearch = _defaultFuzzysearch
 	}
 
+	/*
+		Fuzzy search engine is not mandatory
+		for hssh. So instead generate and error
+		if binary path cannot be found, we "unset"
+		fuzzysearch
+	*/
 	if c.fuzzyBinaryExist() == false {
 		c.Fuzzysearch = ""
 	}
@@ -84,7 +95,7 @@ func (c *config) read(path string) error {
 
 func (c *config) fuzzyBinaryExist() bool {
 	cmdOutput := &bytes.Buffer{}
-	cmd := exec.Command("which", c.Fuzzysearch)
+	cmd := exec.Command(_resolverBinary, c.Fuzzysearch)
 	cmd.Stdout = cmdOutput
 	cmd.Stderr = nil
 	cmd.Stdin = os.Stdin
@@ -100,7 +111,7 @@ func (c *config) fuzzyBinaryExist() bool {
 // Create ...
 func (c *config) Create(content string) error {
 	for _, path := range allowedPaths {
-		fileName := "config.yml"
+		fileName := _configFileName
 		pathFolder, err := replaceHomePlaceholder(path)
 		if err != nil {
 			continue
@@ -110,7 +121,7 @@ func (c *config) Create(content string) error {
 
 		_, err = os.Stat(pathWithFile)
 		if err == nil {
-			fmt.Println("FILE EXIST")
+			fmt.Println("File", pathWithFile, "just exist")
 			pathWithFile = pathWithFile + ".example"
 		}
 
@@ -131,7 +142,7 @@ func (c *config) Create(content string) error {
 func (c *config) Load() error {
 	fileReads := 0
 	for _, path := range allowedPaths {
-		pathWithFile := path + "/config.yml"
+		pathWithFile := path + "/" + _configFileName
 		pathWithFile, err := replaceHomePlaceholder(pathWithFile)
 		if err != nil {
 			continue
@@ -148,7 +159,7 @@ func (c *config) Load() error {
 	}
 
 	if fileReads == 0 {
-		return errors.New("NO_VALID_CONF_FILES")
+		return errors.New("No valid configuration file")
 	}
 
 	return nil
