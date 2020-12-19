@@ -23,8 +23,40 @@ type connection struct {
 	Hostname     string
 }
 
+// GetID ...
+/*............................................................................*/
 func (c *connection) GetID() int {
 	return c.ID
+}
+
+// GetName ...
+/*............................................................................*/
+func (c *connection) GetName() string {
+	return c.Name
+}
+
+// GetUser ...
+/*............................................................................*/
+func (c *connection) GetUser() string {
+	return c.User
+}
+
+// GetPort ...
+/*............................................................................*/
+func (c *connection) GetPort() string {
+	return c.Port
+}
+
+// GetIdentityFile ...
+/*............................................................................*/
+func (c *connection) GetIdentityFile() string {
+	return c.IdentityFile
+}
+
+// GetHostname ...
+/*............................................................................*/
+func (c *connection) GetHostname() string {
+	return c.Hostname
 }
 
 // ToString ...
