@@ -72,7 +72,7 @@ func main() {
 	}
 
 	if *isExec == true {
-		c.Exec()
+		c.Connect()
 		os.Exit(0)
 	}
 

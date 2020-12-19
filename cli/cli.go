@@ -26,7 +26,7 @@ var defaultConnectionFormat = "[{{.ID}}] {{.Name}} -> {{.User}}@{{.Hostname}}:{{
 type ICli interface {
 	List() (string, error)
 	Sync(string, string)
-	Exec() error
+	Connect() error
 	Print(string)
 
 	list(string) (string, error)
@@ -113,7 +113,7 @@ func (c *cli) List() (string, error) {
 	Allow to select a connections from the list using fuzzysearch.
 	Once selected an ssh command start
 */
-func (c *cli) Exec() error {
+func (c *cli) Connect() error {
 	results, err := c.List()
 	if err != nil {
 		return err
