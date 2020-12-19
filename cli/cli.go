@@ -13,13 +13,14 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
+	"strings"
 	"sync"
 )
 
 // ICli ...
 type ICli interface {
 	List() (string, error)
-	Sync(string)
+	Sync(string, string)
 	Exec() error
 	Print(string)
 
@@ -101,26 +102,33 @@ func (c *cli) Exec() error {
 }
 
 // Sync ...
-func (c *cli) Sync(projectID string) {
+func (c *cli) Sync(projectID string, path string) {
 	var wg sync.WaitGroup
 
-	for _, fileFromProvider := range c.filesToSearch {
+	filesOfTheProject, err := c.provider.GetFiles(projectID, path)
+	if err != nil {
+		return
+	}
+
+	for _, fileFromProvider := range filesOfTheProject {
 		wg.Add(1)
 
-		go func(file string) {
+		go func(fileID string, filePath string) {
 			defer wg.Done()
 
-			fileDecoded, err := c.provider.GetFile(projectID, file)
+			content, err := c.provider.GetFile(projectID, fileID)
 			if err != nil {
 				return
 			}
 
-			re := regexp.MustCompile(`(\/|%2F).*`)
-			folder := re.ReplaceAllString(file, ``)
+			fmt.Println(filePath)
+			splits := strings.Split(filePath, "/")
+			folder := splits[0]
+			fileName := splits[1]
 
-			sshconfig.Create(folder, fileDecoded.Name, fileDecoded.Content)
+			sshconfig.Create(folder, fileName, content)
 
-		}(fileFromProvider)
+		}(fileFromProvider.ID, fileFromProvider.Path)
 	}
 
 	wg.Wait()
@@ -138,11 +146,10 @@ func (c *cli) Print(content string) {
 }
 
 // New ...
-func New(fuzzysearch string, p providers.IProvider, filesToSearch []string, colors bool) ICli {
+func New(fuzzysearch string, p providers.IProvider, colors bool) ICli {
 	return &cli{
-		fuzzysearch:   fuzzysearch,
-		provider:      p,
-		filesToSearch: filesToSearch,
-		colors:        colors,
+		fuzzysearch: fuzzysearch,
+		provider:    p,
+		colors:      colors,
 	}
 }

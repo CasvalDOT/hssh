@@ -12,27 +12,42 @@ NOTE: Now is currently supported gitlab
 type IProvider interface {
 	iGet
 	iGetFile
+	iGetFiles
 }
 
-// iGet
 type iGet interface {
-	get(string) ([]byte, error)
+	get(string, []queryParam) ([]byte, error)
+}
+
+type iGetFiles interface {
+	GetFiles(string, string) ([]file, error)
 }
 
 type iGetFile interface {
-	GetFile(string, string) (*fileDecoded, error)
+	GetFile(string, string) ([]byte, error)
 }
 
 type file struct {
+	ID      string `json:"id"`
 	Content string `json:"content"`
 	Name    string `json:"file_name"`
+	Path    string `json:"path"`
 }
 
-type fileDecoded struct {
-	Content []byte
-	Name    string
+type queryParam struct {
+	key   string
+	value string
 }
 
+/*
+Provider use two attributes
+url and privateToken.
+
+url is the repo link where files can be found.
+
+privateToken instead permit to
+authenticate to the service
+*/
 type provider struct {
 	url          string
 	privateToken string

@@ -35,10 +35,10 @@ type IConfig interface {
 }
 
 type providerConfig struct {
-	Host         string   `yaml:"host"`
-	PrivateToken string   `yaml:"private_token"`
-	ProjectID    string   `yaml:"project_id"`
-	Files        []string `yaml:"files"`
+	Host         string `yaml:"host"`
+	Path         string `yaml:"path"`
+	PrivateToken string `yaml:"private_token"`
+	ProjectID    string `yaml:"project_id"`
 }
 
 type config struct {
@@ -47,6 +47,7 @@ type config struct {
 	DefaultProvider string         `yaml:"default_provider"`
 }
 
+// TODO: move outside
 func replaceHomePlaceholder(path string) (string, error) {
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -123,7 +124,6 @@ func (c *config) Create(content string) error {
 
 		defer file.Close()
 		file.WriteString(content)
-
 	}
 	return nil
 }
@@ -139,14 +139,12 @@ func (c *config) Load() error {
 		}
 
 		_, err = os.Stat(pathWithFile)
-		if os.IsNotExist(err) {
+		if err != nil || os.IsNotExist(err) {
 			continue
 		}
 
 		c.read(pathWithFile)
-		if err != nil {
-			continue
-		}
+
 		fileReads = fileReads + 1
 	}
 

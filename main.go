@@ -53,7 +53,6 @@ func main() {
 	c := cli.New(
 		fuzzysearch,
 		p,
-		providerConfig.Files,
 		*isColor,
 	)
 
@@ -74,7 +73,7 @@ func main() {
 	}
 
 	if *isSync == true {
-		c.Sync(providerConfig.ProjectID)
+		c.Sync(providerConfig.ProjectID, providerConfig.Path)
 		os.Exit(0)
 	}
 
