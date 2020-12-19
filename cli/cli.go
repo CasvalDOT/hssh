@@ -1,7 +1,8 @@
 // Package cli ...
 /*
-The cli package contains a bunch of methods
-mapped 1:1 with the flags provided by
+This package is a wrapper around the entire
+hssh logic. Instead of dirt the main file with lot of logics
+i've created this one.
 */
 package cli
 
@@ -13,7 +14,6 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
-	"strconv"
 	"strings"
 	"sync"
 )
@@ -29,7 +29,7 @@ type ICli interface {
 	Exec() error
 	Print(string)
 
-	search(string) (string, error)
+	list(string) (string, error)
 	toTempFile(string) (*os.File, error)
 }
 
@@ -40,6 +40,11 @@ type cli struct {
 	colors      bool
 }
 
+/*
+	toTempFile
+	...........................................................
+	take connections from ssh user agent and save in a temp file
+*/
 func (c *cli) toTempFile(format string) (*os.File, error) {
 	connections := c.sshUA.List()
 	var context = ""
@@ -54,22 +59,23 @@ func (c *cli) toTempFile(format string) (*os.File, error) {
 	return createTempFile(context)
 }
 
-func (c *cli) getIDFromSelection(selection string) (int, error) {
-	rgx := regexp.MustCompile("(?mi).*\\[(.*?)\\].*\n")
-	idString := rgx.ReplaceAllString(selection, "$1")
-	return strconv.Atoi(idString)
-}
-
-func (c *cli) search(format string) (string, error) {
+/*
+	list
+	.........................................................
+	The list function write the entire list of connections
+	inside a temporaly file. c.toTempFile do this thing.
+	To print the output we use the cat command. Why?
+	Because fuzzysearch work very well when pipe and hssh support fuzzysearch
+*/
+func (c *cli) list(format string) (string, error) {
 	tmpFile, err := c.toTempFile(format)
+	var context string
 	if err != nil {
-		return "", err
+		return context, err
 	}
-	command := "cat " + tmpFile.Name()
 
-	if c.fuzzysearch != "" {
-		command = command + " | " + c.fuzzysearch
-	}
+	command := cat(tmpFile)
+	command = pipeFuzzysearch(command, c.fuzzysearch)
 
 	cmdOutput := &bytes.Buffer{}
 
@@ -80,30 +86,40 @@ func (c *cli) search(format string) (string, error) {
 
 	err = cmd.Run()
 	if err != nil {
-		return "", err
+		return context, err
 	}
 
 	if err := tmpFile.Close(); err != nil {
-		return "", err
+		return context, err
 	}
 
-	return string(string(cmdOutput.Bytes())), nil
+	context = string(cmdOutput.Bytes())
+
+	return context, nil
 }
 
-// List ...
+/*
+	List
+	...............................................................
+	Return the full list of connections in the format provided.
+*/
 func (c *cli) List() (string, error) {
-	connectionFormat := defaultConnectionFormat
-	return c.search(connectionFormat)
+	return c.list(defaultConnectionFormat)
 }
 
-// Exec ...
+/*
+	Connect
+	................................................................
+	Allow to select a connections from the list using fuzzysearch.
+	Once selected an ssh command start
+*/
 func (c *cli) Exec() error {
 	results, err := c.List()
 	if err != nil {
 		return err
 	}
 
-	id, err := c.getIDFromSelection(results)
+	id, err := getIDFromSelection(results)
 	if err != nil {
 		return err
 	}
@@ -115,7 +131,12 @@ func (c *cli) Exec() error {
 	return nil
 }
 
-// Sync ...
+/*
+	Sync
+	................................................................
+	Download and save the files with ssh configurations
+	from the provided declared in configuration file
+*/
 func (c *cli) Sync(projectID string, path string) {
 	var wg sync.WaitGroup
 

@@ -28,6 +28,7 @@ func (c *connection) GetID() int {
 }
 
 // ToString ...
+/*............................................................................*/
 func (c *connection) ToString(format string) (string, error) {
 	tmpl, err := template.New(templateName).Parse(format)
 	var connectionString string
@@ -44,6 +45,7 @@ func (c *connection) ToString(format string) (string, error) {
 }
 
 // Connect ...
+/*............................................................................*/
 func (c *connection) Connect() error {
 	var argsOfTheCommand = "ssh "
 	argsOfTheCommand += c.User + "@" + c.Hostname + " -p " + c.Port
@@ -62,6 +64,7 @@ func (c *connection) Connect() error {
 }
 
 // NewConnection ...
+/*............................................................................*/
 func NewConnection(
 	id int,
 	name string,

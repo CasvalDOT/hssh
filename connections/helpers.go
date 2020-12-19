@@ -5,16 +5,22 @@ import (
 	"regexp"
 )
 
+// homeDir
+/*............................................................................*/
 func homeDir() string {
 	homeDir, _ := os.UserHomeDir()
 	return homeDir
 }
 
+// makePath
+/*............................................................................*/
 func makePath(folderName string) string {
 	absolutePath := homeDir() + "/.ssh/" + folderName
 	return absolutePath
 }
 
+// extractData
+/*............................................................................*/
 func extractData(key string, context string, defaultValue string) string {
 	regexToCompile := regexp.MustCompile(key + pairRegex)
 	matchs := regexToCompile.FindAllStringSubmatch(context, -1)

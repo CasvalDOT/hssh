@@ -54,6 +54,7 @@ type provider struct {
 }
 
 // New ...
+/*............................................................................*/
 func New(driver string, url string, privateToken string) IProvider {
 	if driver == "gitlab" {
 		return NewGitlab(url, privateToken)

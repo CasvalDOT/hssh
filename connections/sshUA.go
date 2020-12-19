@@ -42,7 +42,7 @@ type ISSHUA interface {
 	Load()
 	List() []IConnection
 	SearchConnectionByID(int) IConnection
-	Create(string, string, []byte) (string, error)
+	CreateConfig(string, string, []byte) (string, error)
 }
 
 type sshUA struct {
@@ -50,7 +50,9 @@ type sshUA struct {
 	configFiles []string
 }
 
-func (ssh *sshUA) normaliseContextConfig(context string) []string {
+// normalizeContextConfig
+/*............................................................................*/
+func (ssh *sshUA) normalizeContextConfig(context string) []string {
 	for _, reg := range configRegexs {
 		re := regexp.MustCompile(reg.value)
 		context = re.ReplaceAllString(context, reg.replace)
@@ -59,13 +61,15 @@ func (ssh *sshUA) normaliseContextConfig(context string) []string {
 	return strings.Split(context, connectionSeparator)
 }
 
+// readConnectionsFromConfig
+/*............................................................................*/
 func (ssh *sshUA) readConnectionsFromConfig(configPath string) error {
 	file, err := ioutil.ReadFile(configPath)
 	if err != nil {
 		return err
 	}
 
-	connectionsString := ssh.normaliseContextConfig(string(file))
+	connectionsString := ssh.normalizeContextConfig(string(file))
 
 	for _, connectionString := range connectionsString {
 		name := extractData(nameKey, connectionString, defaultConnectionName)
@@ -84,6 +88,8 @@ func (ssh *sshUA) readConnectionsFromConfig(configPath string) error {
 	return nil
 }
 
+// loadConnections
+/*............................................................................*/
 func (ssh *sshUA) loadConnections() {
 	for _, configFile := range ssh.configFiles {
 		err := ssh.readConnectionsFromConfig(configFile)
@@ -94,6 +100,8 @@ func (ssh *sshUA) loadConnections() {
 
 }
 
+// loadConfigs
+/*............................................................................*/
 func (ssh *sshUA) loadConfigs() {
 	var configFiles []string
 	sshAbsolutePath := makePath("")
@@ -122,6 +130,8 @@ func (ssh *sshUA) List() []IConnection {
 	return ssh.connections
 }
 
+// SearchConnectionByID
+/*............................................................................*/
 func (ssh *sshUA) SearchConnectionByID(id int) IConnection {
 	for _, connection := range ssh.connections {
 		if connection.GetID() == id {
@@ -132,7 +142,9 @@ func (ssh *sshUA) SearchConnectionByID(id int) IConnection {
 	return nil
 }
 
-func (ssh *sshUA) Create(folderName string, fileName string, content []byte) (string, error) {
+// CreateConfig
+/*............................................................................*/
+func (ssh *sshUA) CreateConfig(folderName string, fileName string, content []byte) (string, error) {
 	folderPath := makePath(folderName)
 	filePath := folderPath + "/" + fileName
 
@@ -156,6 +168,7 @@ func (ssh *sshUA) Create(folderName string, fileName string, content []byte) (st
 }
 
 // NewSSHUA ...
+/*............................................................................*/
 func NewSSHUA() ISSHUA {
 	return &sshUA{}
 }

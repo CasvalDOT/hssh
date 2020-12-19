@@ -11,6 +11,8 @@ type gitlab struct {
 	provider
 }
 
+// get
+/*............................................................................*/
 func (g *gitlab) get(endpoint string, queryParams []queryParam) ([]byte, error) {
 	request, err := http.NewRequest("GET", g.url+endpoint, nil)
 	if err != nil {
@@ -47,6 +49,8 @@ Request return a limited set of results
 if you need more than 20 files
 you must create a paginatio system
 */
+// GetFiles
+/*............................................................................*/
 func (g *gitlab) GetFiles(projectID string, filePath string) ([]file, error) {
 	endpoint := "/projects/" + projectID + "/repository/tree"
 	path := queryParam{
@@ -69,7 +73,8 @@ func (g *gitlab) GetFiles(projectID string, filePath string) ([]file, error) {
 	return f, nil
 }
 
-// TODO: remove pointer
+// GetFile
+/*............................................................................*/
 func (g *gitlab) GetFile(projectID string, fileID string) ([]byte, error) {
 	var content []byte
 	endpoint := "/projects/" + projectID + "/repository/blobs/" + fileID
@@ -93,6 +98,7 @@ func (g *gitlab) GetFile(projectID string, fileID string) ([]byte, error) {
 }
 
 // NewGitlab ...
+/*............................................................................*/
 func NewGitlab(url string, privateToken string) IProvider {
 	return &gitlab{
 		provider: provider{

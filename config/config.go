@@ -19,10 +19,11 @@ var resolverBinary = "which"
 var configFileName = "config.yml"
 var defaultFuzzysearch = "fzf"
 var homePlaceholder = "{{HOME}}"
+var defaultFolderName = "hssh"
 
 var allowedPaths = []string{
-	"/etc/hssh",
-	homePlaceholder + "/.config/hssh",
+	"/etc/" + defaultFolderName,
+	homePlaceholder + "/.config/" + defaultFolderName,
 }
 
 // IConfig ..
@@ -50,6 +51,8 @@ type config struct {
 	DefaultProvider string         `yaml:"default_provider"`
 }
 
+// replaceHomePlaceholder
+/*............................................................................*/
 func replaceHomePlaceholder(path string) (string, error) {
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -60,6 +63,8 @@ func replaceHomePlaceholder(path string) (string, error) {
 	return regex.ReplaceAllString(path, userHomeDir), nil
 }
 
+// read
+/*............................................................................*/
 func (c *config) read(path string) error {
 	file, err := os.Open(path)
 	if err != nil {
@@ -91,6 +96,8 @@ func (c *config) read(path string) error {
 	return nil
 }
 
+// fuzzyBinaryExist
+/*............................................................................*/
 func (c *config) fuzzyBinaryExist() bool {
 	cmdOutput := &bytes.Buffer{}
 	cmd := exec.Command(resolverBinary, c.Fuzzysearch)
@@ -107,6 +114,7 @@ func (c *config) fuzzyBinaryExist() bool {
 }
 
 // Create ...
+/*............................................................................*/
 func (c *config) Create(content string) error {
 	for _, path := range allowedPaths {
 		fileName := configFileName
@@ -137,6 +145,7 @@ func (c *config) Create(content string) error {
 }
 
 // Load ...
+/*............................................................................*/
 func (c *config) Load() error {
 	fileReads := 0
 	for _, path := range allowedPaths {
@@ -163,19 +172,26 @@ func (c *config) Load() error {
 	return nil
 }
 
+// GetProvider
+/*............................................................................*/
 func (c *config) GetProvider() providerConfig {
 	return c.Provider
 }
 
+// GetDefaultProvider
+/*............................................................................*/
 func (c *config) GetDefaultProvider() string {
 	return c.DefaultProvider
 }
 
+// GetFuzzysearch
+/*............................................................................*/
 func (c *config) GetFuzzysearch() string {
 	return c.Fuzzysearch
 }
 
 // New ...
+/*............................................................................*/
 func New() IConfig {
 	return &config{}
 }
