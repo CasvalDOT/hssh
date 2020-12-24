@@ -25,8 +25,9 @@ It generate a valid binary. Put the generated binary inside a valid binary path 
 Download one of the releses
 
 ### Brew
-Due to private nature of the repository, you must create first a personal access token
-in github settings tab. Copy the generated token and then export your env in your local machine
+Due to private nature of the repository, you must create:
+1. first a personal access token in github settings tab. 
+2. Copy the generated token and then export your env in your local machine
 
 `export HOMEBREW_GITHUB_API_TOKEN=<Your Token>`
 
