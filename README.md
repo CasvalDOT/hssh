@@ -91,4 +91,3 @@ alias sshfzf='hssh -f -l -c'
 alias sshexe='hssh -e'
 ```
 
-Be happy!!
