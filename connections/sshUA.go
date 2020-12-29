@@ -47,7 +47,7 @@ of regex of our content.
 */
 var configRegexs = [5]replaceObject{
 	{`(?mi)#.*\s`, ""},                  // Remove all comments
-	{`(?mi)Host `, "#" + nameKey + " "}, // Replace "Host " with # char
+	{`(?mi)Host `, "#" + nameKey + " "}, // Replace "Host " with #Name char
 	{`(?mi)\s\s+`, `\n`},                // Remove multiple spaces
 	{`(?mi)\\n`, ""},                    // Remove new lines
 	{`(` + nameKey + `|` + hostnameKey + `|` + identityFileKey + `|` + userKey + `|` + portKey + `)`, ` $1`}, // Replace <key> with " <key>. Is useful for next logic and easy argument taking"
