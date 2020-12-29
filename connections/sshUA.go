@@ -32,6 +32,8 @@ var templateName = "format_connection"
 var pairRegex = " (.*?)(\\s|#|$)"
 var nameRegex = "(.*?) " + hostnameKey
 var connectionSeparator = "#"
+
+// TODO: shell binary can be a parameter in config
 var shellBinary = "bash"
 
 /*
