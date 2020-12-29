@@ -9,17 +9,25 @@ import (
 	"strings"
 )
 
+// SSH Connection attributes
 var nameKey = "Name"
 var portKey = "Port"
 var identityFileKey = "IdentityFile"
 var hostnameKey = "Hostname"
 var userKey = "User"
+
+// SSH Default values for connection attributes
 var defaultConnectionName = "-"
 var defaultConnectionHostname = "-"
 var defaultConnectionIdentityFile = ""
 var defaultConnectionPort = "22"
 var defaultConnectionUser = "root"
+
+// We use this string to identify a valid configuration
+// file in .ssh folder.
 var filePatternMatch = "config"
+
+// Other data ...
 var templateName = "format_connection"
 var pairRegex = " (.*?)(\\s|#|$)"
 var nameRegex = "(.*?) " + hostnameKey
