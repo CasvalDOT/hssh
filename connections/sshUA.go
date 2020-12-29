@@ -32,6 +32,7 @@ var templateName = "format_connection"
 var pairRegex = " (.*?)(\\s|#|$)"
 var nameRegex = "(.*?) " + hostnameKey
 var connectionSeparator = "#"
+var shellBinary = "bash"
 
 /*
  Replace object rapresent two
@@ -184,7 +185,7 @@ func (ssh *sshUA) SearchConnectionByID(id int) IConnection {
 /*............................................................................*/
 func (ssh *sshUA) Connect(connectionID int) error {
 	connection := ssh.SearchConnectionByID(connectionID)
-	cmd := exec.Command("bash", "-c", connection.GetSSHConnection())
+	cmd := exec.Command(shellBinary, "-c", connection.GetSSHConnection())
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
