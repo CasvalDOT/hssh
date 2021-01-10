@@ -12,6 +12,19 @@ Below you can see two examples of fuzzy finders:
 - [skim](https://github.com/lotabout/skim) - Written in **Rust**
 - [scout](https://github.com/jhbabon/scout) - Written in **Rust**
 
+## Notes
+- Hssh check ssh config files inside .ssh home folder.
+- SSH config files name must contains the string **config** or must be inside a folder with a name contains string config.
+For example:
+
+```
+# Allowed files
+my_config
+config.01
+works.config.d/list
+external.config/ext01
+```
+
 
 ## Install
 The available methods are:
@@ -29,8 +42,16 @@ It generate a valid binary. Put the generated binary inside a valid binary path 
 Download one of the releses
 
 ## Git
-Currently the files of ssh configs can be hosted only on gitlab (next must be github). You you would use this feature
-please put the files inside a directory into the root project.
+Currently the files of ssh configs can be hosted only on gitlab (next must be github). If you would use this feature
+please put the files inside a directory into the root project. Ex.
+```
+my_gitlab_project
+|
+|-- my_folder
+    |
+    |- myconfig.01
+    |- myconfig.02
+```
 
 ## Configuration
 You must set the following params in your configuration file.
