@@ -5,6 +5,10 @@ Also you can use a gitlab repo to store your config files and sync it!
 
 ![Screenshot](https://raw.githubusercontent.com/CasvalDOT/hssh/master/screenshot.png)
 
+View in action!
+
+[![asciicast](https://asciinema.org/a/L4JOn8VIieGV3EI32C9aeDCeU.svg)](https://asciinema.org/a/L4JOn8VIieGV3EI32C9aeDCeU)
+
 ## Dependencies
 HSSH use fuzzysearch. So a valid binary is required.
 Below you can see two examples of fuzzy finders:
