@@ -28,19 +28,9 @@ It generate a valid binary. Put the generated binary inside a valid binary path 
 ### Release
 Download one of the releses
 
-### Brew
-Due to private nature of the repository, you must create:
-1. first a personal access token in github settings tab. 
-2. Copy the generated token and then export your env in your local machine
-
-`export HOMEBREW_GITHUB_API_TOKEN=<Your Token>`
-
-After that execute the following commands
-
-```
-brew tap heply/tools git@gitlab.com:Casval/homebrew-heply.git
-brew install hssh
-```
+## Git
+Currently the files of ssh configs can be hosted only on gitlab (next must be github). You you would use this feature
+please put the files inside a directory into the root project.
 
 ## Configuration
 You must set the following params in your configuration file.
