@@ -1,5 +1,10 @@
 # HSSH 
-> An heply utility for happy coders to easily search and connect into remote servers.
+
+> An utility to easily search and connect into remote servers.
+
+![Screenshot](https://raw.githubusercontent.com/CasvalDOT/hssh/master/screenshot.png)
+
+This tool sync 
 
 ## Dependencies
 HSSH use fuzzysearch. So a valid binary is required.
@@ -92,4 +97,19 @@ alias sshfzf='hssh -f -l -c'
 alias sshexe='hssh -e'
 ```
 
+## Have you found a bug?
+
+Please open a new issue on:
+
+https://github.com/CasvalDOT/hssh/issues
+
+## Support the project
+If you want, you can also freely donate to fund the project development!
+[donate](https://paypal.me/FGortani)
+
+## License
+
+Copyright (c) Fabrizio Gortani
+
+[MIT License](http://en.wikipedia.org/wiki/MIT_License)
 ---
