@@ -9,8 +9,8 @@ Also you can use a gitlab repo to store your config files and sync it!
 HSSH use fuzzysearch. So a valid binary is required.
 Below you can see two examples of fuzzy finders:
 - [fzf](https://github.com/junegunn/fzf) - Written in **GO**
-- [skim](https://github.com/lotabout/skim) - Written in **Rust**
-- [scout](https://github.com/jhbabon/scout) - Written in **Rust**
+- [skim](https://github.com/lotabout/skim) - Written in **Rust** (Not yet tested)
+- [scout](https://github.com/jhbabon/scout) - Written in **Rust** (Not yet tested)
 
 ## Notes
 - Hssh check ssh config files inside .ssh home folder.
