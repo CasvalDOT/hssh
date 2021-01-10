@@ -1,10 +1,9 @@
 # HSSH 
 
-> An utility to easily search and connect into remote servers.
+An utility to easily search through your ssh configs and connect into remote servers.
+Also you can use a gitlab repo to store your config files and sync it!
 
 ![Screenshot](https://raw.githubusercontent.com/CasvalDOT/hssh/master/screenshot.png)
-
-This tool sync 
 
 ## Dependencies
 HSSH use fuzzysearch. So a valid binary is required.
