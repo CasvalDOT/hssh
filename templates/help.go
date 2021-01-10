@@ -17,11 +17,4 @@ hssh <options>
 -s sync connections file from the repository
 -c enable colors
 -C create a new exemple configuration file. (this will not overwrite your actual conf)
-
-## CUSTOM ALIAS
-For maintan compatibility with sshconfig tool you can create the following
-alias:
-
-alias sshls='hssh -l -c'
-alias sshget='hssh -s'
 `
