@@ -3,6 +3,7 @@ package providers
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 )
@@ -26,7 +27,10 @@ func (g *github) get(endpoint string, queryParams []queryParam) ([]byte, error) 
 		return nil, err
 	}
 
-	request.Header.Set("Authorization", "token "+g.privateToken)
+	if g.privateToken != "" {
+		request.Header.Set("Authorization", "token "+g.privateToken)
+	}
+
 	query := request.URL.Query()
 
 	for _, param := range queryParams {
@@ -72,6 +76,7 @@ func (g *github) GetFiles(repo string, filePath string) ([]file, error) {
 
 	err = json.Unmarshal(bodyInBytes, &gitFiles)
 	if err != nil {
+		fmt.Println("A", string(bodyInBytes))
 		return nil, err
 	}
 

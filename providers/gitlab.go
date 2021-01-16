@@ -26,7 +26,10 @@ func (g *gitlab) get(endpoint string, queryParams []queryParam) ([]byte, error) 
 		return nil, err
 	}
 
-	request.Header.Set("PRIVATE-TOKEN", g.privateToken)
+	if g.privateToken != "" {
+		request.Header.Set("PRIVATE-TOKEN", g.privateToken)
+	}
+
 	query := request.URL.Query()
 
 	for _, param := range queryParams {
