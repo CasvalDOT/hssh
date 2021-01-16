@@ -138,11 +138,13 @@ func (c *cli) Sync(providerConnectionString string) {
 
 	projectID, path, err := getProjectIDAndPath(providerConnectionString)
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 
 	filesOfTheProject, err := c.provider.GetFiles(projectID, path)
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 
@@ -154,6 +156,7 @@ func (c *cli) Sync(providerConnectionString string) {
 
 			content, err := c.provider.GetFile(projectID, fileID)
 			if err != nil {
+				fmt.Println(err)
 				return
 			}
 
