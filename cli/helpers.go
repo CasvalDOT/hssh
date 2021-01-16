@@ -46,7 +46,7 @@ func getIDFromSelection(selection string) (int, error) {
 
 /*............................................................................*/
 func getProjectIDAndPath(providerConnectionString string) (string, string, error) {
-	rgx := regexp.MustCompile("^.*:/(.*?)/(.*)$")
+	rgx := regexp.MustCompile("^.*:/(.*)@(.*)$")
 	matches := rgx.FindAllStringSubmatch(providerConnectionString, 1)
 
 	if len(matches) == 0 || len(matches[0]) < 2 {
