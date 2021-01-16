@@ -118,6 +118,8 @@ func New(connectionString string) IProvider {
 	switch driver {
 	case "gitlab":
 		return NewGitlab(connectionString)
+	case "github":
+		return NewGithub(connectionString)
 	default:
 		panic("INVALID PROVIDER")
 	}
