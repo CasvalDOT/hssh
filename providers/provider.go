@@ -82,6 +82,20 @@ func (p *provider) GetURL() string {
 	return p.url
 }
 
+func (p *provider) ParseConnection(driver string) *provider {
+
+	rgx := regexp.MustCompile("^" + driver + "://(.*?)(:/|$)")
+	result := rgx.FindAllStringSubmatch(p.connectionString, 1)
+
+	if len(result) == 0 || len(result[0]) < 2 {
+		panic("Invalid connection string")
+	}
+
+	p.privateToken = result[0][1]
+
+	return p
+}
+
 func getDriverFromConnectionString(connectionString string) (string, error) {
 	rgx := regexp.MustCompile("^(.*?)://")
 	driver := rgx.FindAllStringSubmatch(connectionString, 1)

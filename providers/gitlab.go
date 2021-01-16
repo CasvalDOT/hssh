@@ -5,8 +5,14 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"regexp"
 )
+
+type gitlabFile struct {
+	ID      string `json:"id"`
+	Content string `json:"content"`
+	Name    string `json:"file_name"`
+	Path    string `json:"path"`
+}
 
 type gitlab struct {
 	provider
@@ -99,15 +105,7 @@ func (g *gitlab) GetFile(projectID string, fileID string) ([]byte, error) {
 }
 
 func (g *gitlab) Start() *gitlab {
-	rgx := regexp.MustCompile("^gitlab://(.*?)(:/|$)")
-	result := rgx.FindAllStringSubmatch(g.connectionString, 1)
-
-	if len(result) == 0 || len(result[0]) < 2 {
-		panic("Invalid connection string")
-	}
-
-	g.privateToken = result[0][1]
-
+	g.provider.ParseConnection("gitlab")
 	return g
 }
 
