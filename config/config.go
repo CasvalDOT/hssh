@@ -33,22 +33,14 @@ type IConfig interface {
 
 	Load() error
 	Create(string) error
-	GetProvider() providerConfig
-	GetDefaultProvider() string
+	GetProvider() string
 	GetFuzzysearch() string
 }
 
-type providerConfig struct {
-	Host         string `yaml:"host"`
-	Path         string `yaml:"path"`
-	PrivateToken string `yaml:"private_token"`
-	ProjectID    string `yaml:"project_id"`
-}
-
 type config struct {
-	Provider        providerConfig `yaml:"provider"`
-	Fuzzysearch     string         `yaml:"fuzzysearch"`
-	DefaultProvider string         `yaml:"default_provider"`
+	Provider        string `yaml:"provider"`
+	Fuzzysearch     string `yaml:"fuzzysearch"`
+	DefaultProvider string `yaml:"default_provider"`
 }
 
 // replaceHomePlaceholder
@@ -174,14 +166,8 @@ func (c *config) Load() error {
 
 // GetProvider
 /*............................................................................*/
-func (c *config) GetProvider() providerConfig {
+func (c *config) GetProvider() string {
 	return c.Provider
-}
-
-// GetDefaultProvider
-/*............................................................................*/
-func (c *config) GetDefaultProvider() string {
-	return c.DefaultProvider
 }
 
 // GetFuzzysearch

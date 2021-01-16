@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 )
 
 type gitlab struct {
@@ -97,13 +98,27 @@ func (g *gitlab) GetFile(projectID string, fileID string) ([]byte, error) {
 	return content, nil
 }
 
+func (g *gitlab) Start() *gitlab {
+	rgx := regexp.MustCompile("^gitlab://(.*?)(:/|$)")
+	result := rgx.FindAllStringSubmatch(g.connectionString, 1)
+
+	if len(result) == 0 || len(result[0]) < 2 {
+		panic("Invalid connection string")
+	}
+
+	g.privateToken = result[0][1]
+
+	return g
+}
+
 // NewGitlab ...
 /*............................................................................*/
-func NewGitlab(url string, privateToken string) IProvider {
-	return &gitlab{
+func NewGitlab(connectionString string) IProvider {
+	g := gitlab{
 		provider: provider{
-			url:          url,
-			privateToken: privateToken,
+			connectionString: connectionString,
+			url:              "https://gitlab.com/api/v4",
 		},
 	}
+	return g.Start()
 }

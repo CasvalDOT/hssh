@@ -25,7 +25,7 @@ var defaultConnectionFormat = "[{{.ID}}] {{.Name}} -> {{.User}}@{{.Hostname}}:{{
 // ICli ...
 type ICli interface {
 	List() (string, error)
-	Sync(string, string)
+	Sync(string)
 	Connect() error
 	Print(string)
 
@@ -133,8 +133,13 @@ func (c *cli) Connect() error {
 	Download and save the files with ssh configurations
 	from the provided declared in configuration file
 */
-func (c *cli) Sync(projectID string, path string) {
+func (c *cli) Sync(providerConnectionString string) {
 	var wg sync.WaitGroup
+
+	projectID, path, err := getProjectIDAndPath(providerConnectionString)
+	if err != nil {
+		return
+	}
 
 	filesOfTheProject, err := c.provider.GetFiles(projectID, path)
 	if err != nil {

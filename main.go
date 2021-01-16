@@ -32,13 +32,10 @@ func main() {
 		fmt.Println(templates.ErrLoadConfiguration, err)
 	}
 
-	providerConfig := conf.GetProvider()
-	defaultProvider := conf.GetDefaultProvider()
+	providerConnectionString := conf.GetProvider()
 
 	p := providers.New(
-		defaultProvider,
-		providerConfig.Host,
-		providerConfig.PrivateToken,
+		providerConnectionString,
 	)
 
 	sshUA := connections.NewSSHUA()
@@ -77,7 +74,7 @@ func main() {
 	}
 
 	if *isSync == true {
-		c.Sync(providerConfig.ProjectID, providerConfig.Path)
+		c.Sync(providerConnectionString)
 		os.Exit(0)
 	}
 
