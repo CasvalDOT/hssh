@@ -1,4 +1,4 @@
-package test
+package gitlab
 
 import (
 	"hssh/providers"
