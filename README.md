@@ -46,8 +46,7 @@ It generate a valid binary. Put the generated binary inside a valid binary path 
 Download one of the releses
 
 ## Git
-Currently the files of ssh configs can be hosted only on gitlab (next must be github). If you would use this feature
-please put the files inside a directory into the root project. Ex.
+If you would use this feature please put the files inside a directory into the root project. Ex.
 ```
 my_gitlab_project
 |
