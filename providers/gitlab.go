@@ -8,13 +8,6 @@ import (
 	"net/http"
 )
 
-type gitlabFile struct {
-	ID      string `json:"id"`
-	Content string `json:"content"`
-	Name    string `json:"file_name"`
-	Path    string `json:"path"`
-}
-
 type gitlab struct {
 	provider
 }
