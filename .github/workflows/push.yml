@@ -1,0 +1,17 @@
+name: Push
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: test
+        run: go test hssh/providers
+        run: go test hssh/cache
+        run: go test hssh/cli
