@@ -10,7 +10,7 @@ import (
 
 /*............................................................................*/
 func getFromCache(c *cli, format string) string {
-	context, _ := cache.Read()
+	context, _ := cache.Read(tempFileName)
 	return context
 }
 
