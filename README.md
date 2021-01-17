@@ -86,12 +86,6 @@ A provider need a connections string. The connection use the following format:
 - **<repo_id>** is the project ID for gitlab (ex. 1235667883893298) or the combo `<owner>/<repo_name>` for github (ex. CasvalDOT/hssh)
 - **<sub_path>** is the subfolder where to find the files
 
-Under the provider section please fill the following attributes:
-- `host` the gitlab api url
-- `private_token` The private token use to auth in gitlab.
-- `project_id` The ID of the repository where to fetch configuration files
-- `path` The subfolder where search files
-
 ## Usage
 To see available options and usage run:
 `hssh -h`
