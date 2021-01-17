@@ -74,18 +74,18 @@ func (p *provider) GetURL() string {
 	return p.url
 }
 
-func (p *provider) ParseConnection(driver string) *provider {
+func (p *provider) ParseConnection(driver string) (*provider, error) {
 
 	rgx := regexp.MustCompile("^" + driver + "://(.*?)(:/|$)")
 	result := rgx.FindAllStringSubmatch(p.connectionString, 1)
 
 	if len(result) == 0 || len(result[0]) < 2 {
-		panic("Invalid connection string")
+		return p, errors.New("Cannot extract token from connection string.\nThe connection string must follow the format:\n<driver>://<token>")
 	}
 
 	p.privateToken = result[0][1]
 
-	return p
+	return p, nil
 }
 
 func getDriverFromConnectionString(connectionString string) (string, error) {
