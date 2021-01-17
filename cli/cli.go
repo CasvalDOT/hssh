@@ -9,6 +9,7 @@ package cli
 import (
 	"bytes"
 	"fmt"
+	"hssh/cache"
 	"hssh/connections"
 	"hssh/providers"
 	"os"
@@ -30,7 +31,6 @@ type ICli interface {
 	Print(string)
 
 	list(string) (string, error)
-	toTempFile(string) (*os.File, error)
 }
 
 type cli struct {
@@ -41,40 +41,39 @@ type cli struct {
 }
 
 /*
-	toTempFile
+	getListOfConnections
 	...........................................................
-	take connections from ssh user agent and save in a temp file
+	obtain a list of connections from different sources.
+	First check for a cached file, otherwise read each config file
+	in SSH folder
 */
-func (c *cli) toTempFile(format string) (*os.File, error) {
-	connections := c.sshUA.List()
-	var context = ""
-	for _, connection := range connections {
-		formattedConnection, err := connection.ToString(format)
-		if err != nil {
-			continue
-		}
-		context += formattedConnection + "\n"
+func (c *cli) getListOfConnections(format string) string {
+	context := ""
+	methods := []func(*cli, string) string{
+		getFromCache,
+		getFromFiles,
 	}
 
-	return createTempFile(context)
+	for _, method := range methods {
+		if context == "" {
+			context = method(c, format)
+		}
+	}
+
+	return context
 }
 
 /*
 	list
 	.........................................................
-	The list function write the entire list of connections
-	inside a temporaly file. c.toTempFile do this thing.
-	To print the output we use the cat command. Why?
-	Because fuzzysearch work very well when pipe and hssh support fuzzysearch
+	Show the list of connections available
 */
 func (c *cli) list(format string) (string, error) {
-	tmpFile, err := c.toTempFile(format)
-	var context string
-	if err != nil {
-		return context, err
-	}
+	context := c.getListOfConnections(format)
 
-	command := cat(tmpFile)
+	cache.Write(tempFileName, context)
+
+	command := cat(context)
 	command = pipeFuzzysearch(command, c.fuzzysearch)
 
 	cmdOutput := &bytes.Buffer{}
@@ -84,12 +83,8 @@ func (c *cli) list(format string) (string, error) {
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 
-	err = cmd.Run()
+	err := cmd.Run()
 	if err != nil {
-		return context, err
-	}
-
-	if err := tmpFile.Close(); err != nil {
 		return context, err
 	}
 
@@ -160,7 +155,7 @@ func (c *cli) Sync(providerConnectionString string) {
 				return
 			}
 
-			fmt.Println(filePath)
+			fmt.Println(filePath, "[OK]")
 			splits := strings.Split(filePath, "/")
 			folder := splits[0]
 			fileName := splits[1]
@@ -171,6 +166,7 @@ func (c *cli) Sync(providerConnectionString string) {
 	}
 
 	wg.Wait()
+	cache.Clear(tempFileName)
 }
 
 // Print

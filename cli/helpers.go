@@ -2,30 +2,36 @@ package cli
 
 import (
 	"errors"
-	"io/ioutil"
-	"os"
+	"hssh/cache"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 /*............................................................................*/
-func createTempFile(content string) (*os.File, error) {
-	tmpFile, err := ioutil.TempFile(os.TempDir(), tempFileName)
-	if err != nil {
-		return nil, err
-	}
-
-	text := []byte(content)
-	if _, err = tmpFile.Write(text); err != nil {
-		return nil, err
-	}
-
-	return tmpFile, nil
+func getFromCache(c *cli, format string) string {
+	context, _ := cache.Read()
+	return context
 }
 
 /*............................................................................*/
-func cat(tmpFile *os.File) string {
-	return "cat " + tmpFile.Name()
+func getFromFiles(c *cli, format string) string {
+	context := ""
+	connections := c.sshUA.List()
+	for _, connection := range connections {
+		formattedConnection, err := connection.ToString(format)
+		if err != nil {
+			continue
+		}
+		context += formattedConnection + "\n"
+	}
+
+	return context
+}
+
+/*............................................................................*/
+func cat(context string) string {
+	return "echo -e '" + context + "'"
 }
 
 /*............................................................................*/
@@ -41,7 +47,7 @@ func pipeFuzzysearch(command string, fuzzyBinary string) string {
 func getIDFromSelection(selection string) (int, error) {
 	rgx := regexp.MustCompile("(?mi).*\\[(.*?)\\].*\n")
 	idString := rgx.ReplaceAllString(selection, "$1")
-	return strconv.Atoi(idString)
+	return strconv.Atoi(strings.Trim(idString, " "))
 }
 
 /*............................................................................*/
