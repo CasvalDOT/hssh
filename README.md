@@ -71,17 +71,22 @@ Below an example of configuration generated:
 ```
 fuzzysearch: "fzf"
 default_provider: "gitlab"
-provider:
-  host: "https://gitlab.com/api/v4"
-  private_token: ""
-  project_id: ""
-  path: ""
+provider: github://my_private_token:/CasvalDOT/hssh@providers
 ```
 
 #### Providers
 Hssh support multiple providers for fetch remote configs repository.
 
-NOTE: Currently gitlab in only supported.
+A provider need a connections string. The connection use the following format:
+```
+<driver>://<private_token>:/<repo_id>@<sub_path>
+```
+
+- **<driver>** must be **github** or **gitlab**
+- **<private_token>** is the access token created for access to private repo. You can leave empty if your repo is public (ex. github://:/...).
+- **<repo_id>** is the project ID for gitlab (ex. 1235667883893298) or the combo `<owner>/<repo_name>` for github (ex. CasvalDOT/hssh)
+- **<sub_path>** is the subfolder where to find the files
+
 Under the provider section please fill the following attributes:
 - `host` the gitlab api url
 - `private_token` The private token use to auth in gitlab.
