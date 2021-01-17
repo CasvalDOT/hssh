@@ -13,7 +13,10 @@ jobs:
         goarch: [amd64]
     steps:
       - uses: actions/checkout@v2
-
+      - name: test
+        run: go test hssh/providers
+        run: go test hssh/cache
+        run: go test hssh/cli
       - uses: wangyoucao577/go-release-action@v1.12
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

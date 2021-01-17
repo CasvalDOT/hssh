@@ -3,31 +3,32 @@ package providers
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 )
 
-type gitlabFile struct {
-	ID      string `json:"id"`
-	Content string `json:"content"`
-	Name    string `json:"file_name"`
-	Path    string `json:"path"`
+type githubFile struct {
+	ID   string `json:"sha"`
+	Name string `json:"name"`
+	Path string `json:"path"`
+	Type string `json:"type"`
 }
 
-type gitlab struct {
+type github struct {
 	provider
 }
 
 // get
 /*............................................................................*/
-func (g *gitlab) get(endpoint string, queryParams []queryParam) ([]byte, error) {
+func (g *github) get(endpoint string, queryParams []queryParam) ([]byte, error) {
 	request, err := http.NewRequest("GET", g.url+endpoint, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	if g.privateToken != "" {
-		request.Header.Set("PRIVATE-TOKEN", g.privateToken)
+		request.Header.Set("Authorization", "token "+g.privateToken)
 	}
 
 	query := request.URL.Query()
@@ -61,23 +62,36 @@ you must create a paginatio system
 */
 // GetFiles
 /*............................................................................*/
-func (g *gitlab) GetFiles(projectID string, filePath string) ([]file, error) {
-	endpoint := "/projects/" + projectID + "/repository/tree"
-	path := queryParam{
-		key:   "path",
-		value: filePath,
-	}
+func (g *github) GetFiles(repo string, filePath string) ([]file, error) {
+	endpoint := "/repos/" + repo + "/contents/" + filePath
 
-	queryParams := []queryParam{path}
+	queryParams := []queryParam{}
 	bodyInBytes, err := g.get(endpoint, queryParams)
 	if err != nil {
 		return nil, err
 	}
 
+	gitFiles := []githubFile{}
 	f := []file{}
-	err = json.Unmarshal(bodyInBytes, &f)
+
+	err = json.Unmarshal(bodyInBytes, &gitFiles)
 	if err != nil {
+		fmt.Println("A", string(bodyInBytes))
 		return nil, err
+	}
+
+	for _, gf := range gitFiles {
+		if gf.Type != "file" {
+			continue
+		}
+
+		newFile := file{
+			ID:   gf.ID,
+			Name: gf.Name,
+			Path: gf.Path,
+		}
+
+		f = append(f, newFile)
 	}
 
 	return f, nil
@@ -85,9 +99,9 @@ func (g *gitlab) GetFiles(projectID string, filePath string) ([]file, error) {
 
 // GetFile
 /*............................................................................*/
-func (g *gitlab) GetFile(projectID string, fileID string) ([]byte, error) {
+func (g *github) GetFile(repo string, fileID string) ([]byte, error) {
 	var content []byte
-	endpoint := "/projects/" + projectID + "/repository/blobs/" + fileID
+	endpoint := "/repos/" + repo + "/git/blobs/" + fileID
 	bodyInBytes, err := g.get(endpoint, []queryParam{})
 	if err != nil {
 		return content, err
@@ -107,18 +121,18 @@ func (g *gitlab) GetFile(projectID string, fileID string) ([]byte, error) {
 	return content, nil
 }
 
-func (g *gitlab) Start() *gitlab {
-	g.provider.ParseConnection("gitlab")
+func (g *github) Start() *github {
+	g.provider.ParseConnection("github")
 	return g
 }
 
-// NewGitlab ...
+// NewGithub ...
 /*............................................................................*/
-func NewGitlab(connectionString string) IProvider {
-	g := gitlab{
+func NewGithub(connectionString string) IProvider {
+	g := github{
 		provider: provider{
 			connectionString: connectionString,
-			url:              "https://gitlab.com/api/v4",
+			url:              "https://api.github.com",
 		},
 	}
 	return g.Start()

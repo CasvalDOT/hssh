@@ -1,11 +1,22 @@
 package providers
 
+import (
+	"errors"
+	"regexp"
+)
+
 /*
 Provider is a abstract class that decscribe
 the concrete classes used to fetch the connections
 files from a remote repository
 
 NOTE: Now is currently supported gitlab
+
+The instance accept a connection string with the following
+format:
+
+<driver>://<token>:/<project_ID>/<Path>
+
 */
 
 // IProvider ...
@@ -13,6 +24,7 @@ type IProvider interface {
 	iGet
 	iGetFile
 	iGetFiles
+	iGetPrivateToken
 }
 
 type iGet interface {
@@ -27,16 +39,8 @@ type iGetFile interface {
 	GetFile(string, string) ([]byte, error)
 }
 
-type file struct {
-	ID      string `json:"id"`
-	Content string `json:"content"`
-	Name    string `json:"file_name"`
-	Path    string `json:"path"`
-}
-
-type queryParam struct {
-	key   string
-	value string
+type iGetPrivateToken interface {
+	GetPrivateToken() string
 }
 
 /*
@@ -49,15 +53,74 @@ privateToken instead permit to
 authenticate to the service
 */
 type provider struct {
-	url          string
-	privateToken string
+	url              string
+	privateToken     string
+	connectionString string
+}
+
+type file struct {
+	ID      string `json:"id"`
+	Content string `json:"content"`
+	Name    string `json:"file_name"`
+	Path    string `json:"path"`
+}
+
+type queryParam struct {
+	key   string
+	value string
+}
+
+func (p *provider) GetConnectionString() string {
+	return p.connectionString
+}
+
+func (p *provider) GetPrivateToken() string {
+	return p.privateToken
+}
+
+func (p *provider) GetURL() string {
+	return p.url
+}
+
+func (p *provider) ParseConnection(driver string) *provider {
+
+	rgx := regexp.MustCompile("^" + driver + "://(.*?)(:/|$)")
+	result := rgx.FindAllStringSubmatch(p.connectionString, 1)
+
+	if len(result) == 0 || len(result[0]) < 2 {
+		panic("Invalid connection string")
+	}
+
+	p.privateToken = result[0][1]
+
+	return p
+}
+
+func getDriverFromConnectionString(connectionString string) (string, error) {
+	rgx := regexp.MustCompile("^(.*?)://")
+	driver := rgx.FindAllStringSubmatch(connectionString, 1)
+
+	if len(driver) == 0 {
+		return "", errors.New("Invalid connection string")
+	}
+
+	return driver[0][1], nil
 }
 
 // New ...
 /*............................................................................*/
-func New(driver string, url string, privateToken string) IProvider {
-	if driver == "gitlab" {
-		return NewGitlab(url, privateToken)
+func New(connectionString string) IProvider {
+	driver, err := getDriverFromConnectionString(connectionString)
+	if err != nil {
+		panic(err)
 	}
-	panic("INVALID PROVIDER")
+
+	switch driver {
+	case "gitlab":
+		return NewGitlab(connectionString)
+	case "github":
+		return NewGithub(connectionString)
+	default:
+		panic("INVALID PROVIDER")
+	}
 }
