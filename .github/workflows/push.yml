@@ -12,6 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: test
-        run: go test hssh/providers
-        run: go test hssh/cache
-        run: go test hssh/cli
+        run: |
+          go test hssh/providers
+          go test hssh/cache
+          go test hssh/cli
