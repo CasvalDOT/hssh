@@ -3,6 +3,7 @@ package providers
 import (
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -49,6 +50,10 @@ func (g *github) get(endpoint string, queryParams []queryParam) ([]byte, error) 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
+	}
+
+	if response.StatusCode < 200 || response.StatusCode > 299 {
+		return nil, errors.New(string(body))
 	}
 
 	return body, nil
