@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -106,7 +107,11 @@ func (g *gitlab) GetFile(projectID string, fileID string) ([]byte, error) {
 }
 
 func (g *gitlab) Start() *gitlab {
-	g.provider.ParseConnection("gitlab")
+	_, err := g.provider.ParseConnection("gitlab")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return g
 }
 

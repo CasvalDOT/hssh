@@ -2,6 +2,7 @@ package providers
 
 import (
 	"errors"
+	"log"
 	"regexp"
 )
 
@@ -104,7 +105,7 @@ func getDriverFromConnectionString(connectionString string) (string, error) {
 func New(connectionString string) IProvider {
 	driver, err := getDriverFromConnectionString(connectionString)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	switch driver {
@@ -113,6 +114,7 @@ func New(connectionString string) IProvider {
 	case "github":
 		return NewGithub(connectionString)
 	default:
-		panic("INVALID PROVIDER")
+		log.Fatal("Invalid provider")
+		return nil
 	}
 }

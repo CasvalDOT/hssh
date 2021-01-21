@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -127,7 +128,10 @@ func (g *github) GetFile(repo string, fileID string) ([]byte, error) {
 }
 
 func (g *github) Start() *github {
-	g.provider.ParseConnection("github")
+	_, err := g.provider.ParseConnection("github")
+	if err != nil {
+		log.Fatal(err)
+	}
 	return g
 }
 
