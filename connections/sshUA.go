@@ -81,7 +81,7 @@ type sshUA struct {
 // normalizeContextConfig
 /*
 ............................................................................
-We must normaize the list of connections
+We must normalize the list of connections
 apply the regex defined at the start of this file
 */
 func (ssh *sshUA) normalizeContextConfig(context string) []string {
@@ -101,7 +101,6 @@ func (ssh *sshUA) readConnectionsFromConfig(configPath string) error {
 		return err
 	}
 
-	// Normalize the list of connections
 	connectionsString := ssh.normalizeContextConfig(string(file))
 
 	/*
@@ -228,5 +227,7 @@ func (ssh *sshUA) CreateConfig(folderName string, fileName string, content []byt
 // NewSSHUA ...
 /*............................................................................*/
 func NewSSHUA() ISSHUA {
-	return &sshUA{}
+	ua := sshUA{}
+	ua.Load()
+	return &ua
 }

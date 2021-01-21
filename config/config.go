@@ -77,9 +77,10 @@ func (c *config) read(path string) error {
 
 	/*
 		Fuzzy search engine is not mandatory
-		for hssh. So instead generate and error
+		for hssh. So instead of generate and error
 		if binary path cannot be found, we "unset"
-		fuzzysearch
+		fuzzysearch. This permit the user to use
+		other functionalities
 	*/
 	if c.fuzzyBinaryExist() == false {
 		c.Fuzzysearch = ""
@@ -152,13 +153,16 @@ func (c *config) Load() error {
 			continue
 		}
 
-		c.read(pathWithFile)
+		err = c.read(pathWithFile)
+		if err != nil {
+			continue
+		}
 
 		fileReads = fileReads + 1
 	}
 
 	if fileReads == 0 {
-		return errors.New("No valid configuration file")
+		return errors.New("No valid configuration file found. Check your ~/.config/hssh folder")
 	}
 
 	return nil

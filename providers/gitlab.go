@@ -3,16 +3,11 @@ package providers
 import (
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
-
-type gitlabFile struct {
-	ID      string `json:"id"`
-	Content string `json:"content"`
-	Name    string `json:"file_name"`
-	Path    string `json:"path"`
-}
 
 type gitlab struct {
 	provider
@@ -48,6 +43,10 @@ func (g *gitlab) get(endpoint string, queryParams []queryParam) ([]byte, error) 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
+	}
+
+	if response.StatusCode < 200 || response.StatusCode > 299 {
+		return nil, errors.New(string(body))
 	}
 
 	return body, nil
@@ -108,7 +107,11 @@ func (g *gitlab) GetFile(projectID string, fileID string) ([]byte, error) {
 }
 
 func (g *gitlab) Start() *gitlab {
-	g.provider.ParseConnection("gitlab")
+	_, err := g.provider.ParseConnection("gitlab")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return g
 }
 

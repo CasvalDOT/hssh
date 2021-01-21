@@ -3,17 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+
 	"hssh/cli"
 	"hssh/config"
 	"hssh/connections"
 	"hssh/providers"
 	"hssh/templates"
-	"os"
 )
-
-func printHelp() {
-	fmt.Println(templates.Help)
-}
 
 func main() {
 	withFuzzysearch := flag.Bool("f", false, templates.MsgFuzzySearchFlag)
@@ -27,13 +24,18 @@ func main() {
 
 	conf := config.New()
 
+	/*
+		Instead of generate an error
+		and leave the user "alone" with debug or TODOs,
+		if the configuration file cannot be found we can create an empty one
+	*/
 	err := conf.Load()
 	if err != nil {
 		fmt.Println(templates.ErrLoadConfiguration, err)
+		conf.Create(templates.Config)
 	}
 
 	providerConnectionString := conf.GetProvider()
-
 	p := providers.New(
 		providerConnectionString,
 	)
@@ -58,7 +60,7 @@ func main() {
 	)
 
 	if *isHelp == true {
-		printHelp()
+		fmt.Println(templates.Help)
 		os.Exit(0)
 	}
 
@@ -83,6 +85,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	printHelp()
+	fmt.Println(templates.Help)
+	os.Exit(0)
 
 }

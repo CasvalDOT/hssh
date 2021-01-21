@@ -2,6 +2,7 @@ package providers
 
 import (
 	"errors"
+	"log"
 	"regexp"
 )
 
@@ -9,14 +10,6 @@ import (
 Provider is a abstract class that decscribe
 the concrete classes used to fetch the connections
 files from a remote repository
-
-NOTE: Now is currently supported gitlab
-
-The instance accept a connection string with the following
-format:
-
-<driver>://<token>:/<project_ID>/<Path>
-
 */
 
 // IProvider ...
@@ -82,18 +75,18 @@ func (p *provider) GetURL() string {
 	return p.url
 }
 
-func (p *provider) ParseConnection(driver string) *provider {
+func (p *provider) ParseConnection(driver string) (*provider, error) {
 
 	rgx := regexp.MustCompile("^" + driver + "://(.*?)(:/|$)")
 	result := rgx.FindAllStringSubmatch(p.connectionString, 1)
 
 	if len(result) == 0 || len(result[0]) < 2 {
-		panic("Invalid connection string")
+		return p, errors.New("Cannot extract token from connection string.\nThe connection string must follow the format:\n<driver>://<token>")
 	}
 
 	p.privateToken = result[0][1]
 
-	return p
+	return p, nil
 }
 
 func getDriverFromConnectionString(connectionString string) (string, error) {
@@ -112,7 +105,7 @@ func getDriverFromConnectionString(connectionString string) (string, error) {
 func New(connectionString string) IProvider {
 	driver, err := getDriverFromConnectionString(connectionString)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	switch driver {
@@ -121,6 +114,7 @@ func New(connectionString string) IProvider {
 	case "github":
 		return NewGithub(connectionString)
 	default:
-		panic("INVALID PROVIDER")
+		log.Fatal("Invalid provider")
+		return nil
 	}
 }

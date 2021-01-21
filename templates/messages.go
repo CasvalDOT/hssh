@@ -1,7 +1,7 @@
 package templates
 
 // MsgFuzzySearchFlag ...
-var MsgFuzzySearchFlag = "Enable fuzzysearch. NOTE. fuzzysearch binary is required"
+var MsgFuzzySearchFlag = "Enable fuzzysearch. NOTE. A valid fuzzysearch binary is required\n.You must use FZF or similar softwares"
 
 // MsgListFlag ...
 var MsgListFlag = "Return the list of SSH connections"

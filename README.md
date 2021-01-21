@@ -33,7 +33,7 @@ external.config/ext01
 ## Install
 The available methods are:
 
-### Clone
+### Compile source
 Clone or download the repository and then inside the folder run:
 
 - `go mod init hssh`
@@ -43,7 +43,13 @@ Clone or download the repository and then inside the folder run:
 It generate a valid binary. Put the generated binary inside a valid binary path (Check your env `$PATH`)
 
 ### Release
-Download one of the releses
+Download one of the releses available
+
+### Homebrew
+```
+brew tap CasvalDOT/homebrew-tap
+brew install CasvalDOT/homebrew-tap/Formula/hssh.rb
+```
 
 ## Git
 If you would use this feature please put the files inside a directory into the root project. Ex.
