@@ -9,9 +9,8 @@ package cli
 import (
 	"bytes"
 	"fmt"
-	"hssh/cache"
-	"hssh/connections"
 	"hssh/providers"
+	"hssh/sshuseragent"
 	"os"
 	"os/exec"
 	"regexp"
@@ -35,7 +34,7 @@ type ICli interface {
 
 type cli struct {
 	fuzzysearch string
-	sshUA       connections.ISSHUA
+	sshUA       sshuseragent.IsshUserAgent
 	provider    providers.IProvider
 	colors      bool
 }
@@ -48,19 +47,7 @@ type cli struct {
 	in SSH folder
 */
 func (c *cli) getListOfConnections(format string) string {
-	context := ""
-	methods := []func(*cli, string) string{
-		getFromCache,
-		getFromFiles,
-	}
-
-	for _, method := range methods {
-		if context == "" {
-			context = method(c, format)
-		}
-	}
-
-	return context
+	return getConnectionsFromFiles(c, format)
 }
 
 /*
@@ -70,8 +57,6 @@ func (c *cli) getListOfConnections(format string) string {
 */
 func (c *cli) list(format string) (string, error) {
 	context := c.getListOfConnections(format)
-
-	cache.Write(tempFileName, context)
 
 	command := cat(context)
 	command = pipeFuzzysearch(command, c.fuzzysearch)
@@ -84,7 +69,7 @@ func (c *cli) list(format string) (string, error) {
 	cmd.Stdin = os.Stdin
 
 	err := cmd.Run()
-	if err != nil {
+	if err != nil && err.Error() != "exit status 130" {
 		return context, err
 	}
 
@@ -166,7 +151,6 @@ func (c *cli) Sync(providerConnectionString string) {
 	}
 
 	wg.Wait()
-	cache.Clear(tempFileName)
 }
 
 // Print
@@ -180,7 +164,7 @@ func (c *cli) Print(content string) {
 }
 
 // New ...
-func New(fuzzysearch string, p providers.IProvider, sshUA connections.ISSHUA, colors bool) ICli {
+func New(fuzzysearch string, p providers.IProvider, sshUA sshuseragent.IsshUserAgent, colors bool) ICli {
 	return &cli{
 		fuzzysearch: fuzzysearch,
 		provider:    p,

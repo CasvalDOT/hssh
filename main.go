@@ -7,8 +7,8 @@ import (
 
 	"hssh/cli"
 	"hssh/config"
-	"hssh/connections"
 	"hssh/providers"
+	"hssh/sshuseragent"
 	"hssh/templates"
 )
 
@@ -16,7 +16,6 @@ func main() {
 	withFuzzysearch := flag.Bool("f", false, templates.MsgFuzzySearchFlag)
 	isList := flag.Bool("l", false, templates.MsgListFlag)
 	isColor := flag.Bool("c", false, templates.MsgColorFlag)
-	isExec := flag.Bool("e", false, templates.MsgExecFlag)
 	isSync := flag.Bool("s", false, templates.MsgSyncFlag)
 	isNewConfig := flag.Bool("C", false, templates.MsgNewConfigFlag)
 	isHelp := flag.Bool("h", false, templates.MsgHelpFlag)
@@ -40,14 +39,14 @@ func main() {
 		providerConnectionString,
 	)
 
-	sshUA := connections.NewSSHUA()
+	sshUA := sshuseragent.NewSSHUserAgent()
 
 	fuzzysearch := conf.GetFuzzysearch()
-	if *withFuzzysearch == false && *isExec == false {
+	if *isList == true && *withFuzzysearch == false {
 		fuzzysearch = ""
 	}
 
-	if fuzzysearch == "" && (*isExec == true || *withFuzzysearch == true) {
+	if fuzzysearch == "" && *withFuzzysearch == true {
 		fmt.Println(templates.ErrInvalidFuzzysearchBInary)
 		os.Exit(1)
 	}
@@ -70,11 +69,6 @@ func main() {
 		os.Exit(0)
 	}
 
-	if *isExec == true {
-		c.Connect()
-		os.Exit(0)
-	}
-
 	if *isSync == true {
 		c.Sync(providerConnectionString)
 		os.Exit(0)
@@ -85,7 +79,9 @@ func main() {
 		os.Exit(0)
 	}
 
-	fmt.Println(templates.Help)
-	os.Exit(0)
+	if fuzzysearch != "" {
+		c.Connect()
+		os.Exit(0)
+	}
 
 }
