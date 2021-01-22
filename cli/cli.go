@@ -9,10 +9,8 @@ package cli
 import (
 	"bytes"
 	"fmt"
-	"hssh/cache"
 	"hssh/providers"
 	"hssh/sshuseragent"
-	"log"
 	"os"
 	"os/exec"
 	"regexp"
@@ -60,8 +58,6 @@ func (c *cli) getListOfConnections(format string) string {
 func (c *cli) list(format string) (string, error) {
 	context := c.getListOfConnections(format)
 
-	cache.Write(tempFileName, context)
-
 	command := cat(context)
 	command = pipeFuzzysearch(command, c.fuzzysearch)
 
@@ -73,7 +69,7 @@ func (c *cli) list(format string) (string, error) {
 	cmd.Stdin = os.Stdin
 
 	err := cmd.Run()
-	if err != nil {
+	if err != nil && err.Error() != "exit status 130" {
 		return context, err
 	}
 
@@ -100,13 +96,11 @@ func (c *cli) List() (string, error) {
 func (c *cli) Connect() error {
 	results, err := c.List()
 	if err != nil {
-		log.Fatal(err)
 		return err
 	}
 
 	id, err := getIDFromSelection(results)
 	if err != nil {
-		log.Fatal(err)
 		return err
 	}
 
@@ -157,7 +151,6 @@ func (c *cli) Sync(providerConnectionString string) {
 	}
 
 	wg.Wait()
-	cache.Clear(tempFileName)
 }
 
 // Print
