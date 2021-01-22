@@ -15,7 +15,6 @@ jobs:
       - name: Test
         run: |
           go test hssh/providers
-          go test hssh/cache
           go test hssh/sshuseragent
           go test hssh/cli
       - name: Set up Go
