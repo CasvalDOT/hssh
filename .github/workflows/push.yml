@@ -16,3 +16,4 @@ jobs:
           go test hssh/providers
           go test hssh/cache
           go test hssh/cli
+          go test hssh/sshuseragent

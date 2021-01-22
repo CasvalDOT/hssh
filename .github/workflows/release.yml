@@ -17,6 +17,7 @@ jobs:
         run: |
           go test hssh/providers
           go test hssh/cache
+          go test hssh/sshuseragent
           go test hssh/cli
       - uses: wangyoucao577/go-release-action@v1.12
         with:
