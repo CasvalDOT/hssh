@@ -1,4 +1,4 @@
-package connections
+package sshuseragent
 
 import (
 	"io/ioutil"
@@ -64,8 +64,8 @@ var configRegexs = [5]replaceObject{
 	{`(` + nameKey + `|` + hostnameKey + `|` + identityFileKey + `|` + userKey + `|` + portKey + `)`, ` $1`}, // Replace <key> with " <key>. Is useful for next logic and easy argument taking"
 }
 
-// ISSHUA ...
-type ISSHUA interface {
+// IsshUserAgent ...
+type IsshUserAgent interface {
 	Load()
 	Connect(int) error
 	List() []IConnection
@@ -73,7 +73,7 @@ type ISSHUA interface {
 	CreateConfig(string, string, []byte) (string, error)
 }
 
-type sshUA struct {
+type sshUserAgent struct {
 	connections []IConnection
 	configFiles []string
 }
@@ -84,7 +84,7 @@ type sshUA struct {
 We must normalize the list of connections
 apply the regex defined at the start of this file
 */
-func (ssh *sshUA) normalizeContextConfig(context string) []string {
+func (ssh *sshUserAgent) normalizeContextConfig(context string) []string {
 	for _, reg := range configRegexs {
 		re := regexp.MustCompile(reg.value)
 		context = re.ReplaceAllString(context, reg.replace)
@@ -95,7 +95,7 @@ func (ssh *sshUA) normalizeContextConfig(context string) []string {
 
 // readConnectionsFromConfig
 /*............................................................................*/
-func (ssh *sshUA) readConnectionsFromConfig(configPath string) error {
+func (ssh *sshUserAgent) readConnectionsFromConfig(configPath string) error {
 	file, err := ioutil.ReadFile(configPath)
 	if err != nil {
 		return err
@@ -126,7 +126,7 @@ func (ssh *sshUA) readConnectionsFromConfig(configPath string) error {
 
 // loadConnections
 /*............................................................................*/
-func (ssh *sshUA) loadConnections() {
+func (ssh *sshUserAgent) loadConnections() {
 	for _, configFile := range ssh.configFiles {
 		err := ssh.readConnectionsFromConfig(configFile)
 		if err != nil {
@@ -138,7 +138,7 @@ func (ssh *sshUA) loadConnections() {
 
 // loadConfigs
 /*............................................................................*/
-func (ssh *sshUA) loadConfigs() {
+func (ssh *sshUserAgent) loadConfigs() {
 	var configFiles []string
 	sshAbsolutePath := makePath("")
 	filepath.Walk(sshAbsolutePath, func(path string, info os.FileInfo, err error) error {
@@ -158,21 +158,21 @@ func (ssh *sshUA) loadConfigs() {
 
 // Load
 /*............................................................................*/
-func (ssh *sshUA) Load() {
+func (ssh *sshUserAgent) Load() {
 	ssh.loadConfigs()
 	ssh.loadConnections()
 }
 
 // List
 /*............................................................................*/
-func (ssh *sshUA) List() []IConnection {
+func (ssh *sshUserAgent) List() []IConnection {
 	ssh.Load()
 	return ssh.connections
 }
 
 // SearchConnectionByID
 /*............................................................................*/
-func (ssh *sshUA) SearchConnectionByID(id int) IConnection {
+func (ssh *sshUserAgent) SearchConnectionByID(id int) IConnection {
 	for _, connection := range ssh.connections {
 		if connection.GetID() == id {
 			return connection
@@ -184,7 +184,7 @@ func (ssh *sshUA) SearchConnectionByID(id int) IConnection {
 
 // Connect
 /*............................................................................*/
-func (ssh *sshUA) Connect(connectionID int) error {
+func (ssh *sshUserAgent) Connect(connectionID int) error {
 	connection := ssh.SearchConnectionByID(connectionID)
 	cmd := exec.Command(shellBinary, "-c", connection.GetSSHConnection())
 	cmd.Stdout = os.Stdout
@@ -201,7 +201,7 @@ func (ssh *sshUA) Connect(connectionID int) error {
 
 // CreateConfig
 /*............................................................................*/
-func (ssh *sshUA) CreateConfig(folderName string, fileName string, content []byte) (string, error) {
+func (ssh *sshUserAgent) CreateConfig(folderName string, fileName string, content []byte) (string, error) {
 	folderPath := makePath(folderName)
 	filePath := folderPath + "/" + fileName
 
@@ -224,10 +224,9 @@ func (ssh *sshUA) CreateConfig(folderName string, fileName string, content []byt
 	return filePath, nil
 }
 
-// NewSSHUA ...
+// NewSSHUserAgent ...
 /*............................................................................*/
-func NewSSHUA() ISSHUA {
-	ua := sshUA{}
-	ua.Load()
+func NewSSHUserAgent() IsshUserAgent {
+	ua := sshUserAgent{}
 	return &ua
 }
