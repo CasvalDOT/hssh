@@ -10,8 +10,9 @@ import (
 	"bytes"
 	"fmt"
 	"hssh/cache"
-	"hssh/connections"
 	"hssh/providers"
+	"hssh/sshuseragent"
+	"log"
 	"os"
 	"os/exec"
 	"regexp"
@@ -35,7 +36,7 @@ type ICli interface {
 
 type cli struct {
 	fuzzysearch string
-	sshUA       connections.ISSHUA
+	sshUA       sshuseragent.IsshUserAgent
 	provider    providers.IProvider
 	colors      bool
 }
@@ -48,19 +49,7 @@ type cli struct {
 	in SSH folder
 */
 func (c *cli) getListOfConnections(format string) string {
-	context := ""
-	methods := []func(*cli, string) string{
-		getFromCache,
-		getFromFiles,
-	}
-
-	for _, method := range methods {
-		if context == "" {
-			context = method(c, format)
-		}
-	}
-
-	return context
+	return getConnectionsFromFiles(c, format)
 }
 
 /*
@@ -111,11 +100,13 @@ func (c *cli) List() (string, error) {
 func (c *cli) Connect() error {
 	results, err := c.List()
 	if err != nil {
+		log.Fatal(err)
 		return err
 	}
 
 	id, err := getIDFromSelection(results)
 	if err != nil {
+		log.Fatal(err)
 		return err
 	}
 
@@ -180,7 +171,7 @@ func (c *cli) Print(content string) {
 }
 
 // New ...
-func New(fuzzysearch string, p providers.IProvider, sshUA connections.ISSHUA, colors bool) ICli {
+func New(fuzzysearch string, p providers.IProvider, sshUA sshuseragent.IsshUserAgent, colors bool) ICli {
 	return &cli{
 		fuzzysearch: fuzzysearch,
 		provider:    p,

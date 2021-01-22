@@ -2,20 +2,13 @@ package cli
 
 import (
 	"errors"
-	"hssh/cache"
 	"regexp"
 	"strconv"
 	"strings"
 )
 
 /*............................................................................*/
-func getFromCache(c *cli, format string) string {
-	context, _ := cache.Read(tempFileName)
-	return context
-}
-
-/*............................................................................*/
-func getFromFiles(c *cli, format string) string {
+func getConnectionsFromFiles(c *cli, format string) string {
 	context := ""
 	connections := c.sshUA.List()
 	for _, connection := range connections {
